@@ -1,24 +1,28 @@
 import React from 'react';
 import _ from "lodash";
+import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import '../node_modules/react-grid-layout/css/styles.css'
 import '../node_modules/react-resizable/css/styles.css'
 import './Test.css';
+import Stock from './Stock';
 
-import { Responsive, WidthProvider } from 'react-grid-layout';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 function generateLayout () {
-    return _.map(_.range(0, 25), function(item, i) {
+    return _.map(_.range(0, 1), function(item, i) {
       var y = Math.ceil(Math.random() * 4) + 1;
       return {
-        x: Math.round(Math.random() * 5) * 2,
-        y: Math.floor(i / 6) * y,
+        // x: Math.round(Math.random() * 5) * 2,
+        // y: Math.floor(i / 6) * y,
+        x: 3,
+        y: 2,
         w: 2,
-        h: y,
+        h: 1,
         i: i.toString(),
-        static: Math.random() < 0.05
+        // static: Math.random() < 0.05
+        static: false
       };
     });
   }
@@ -40,7 +44,7 @@ interface Props{
     
     static defaultProps: Props = {
       className: "layout",
-      rowHeight: 30,
+      rowHeight: 400,
       onLayoutChange: function() {},
       cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
     };
@@ -68,7 +72,7 @@ interface Props{
                 Static - {i}
               </span>
             ) : (
-              <span className="text">{i}</span>
+              <Stock/>
             )}
           </div>
         );
