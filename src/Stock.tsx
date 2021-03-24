@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { get } from 'lodash';
+import moment from 'moment';
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
   
@@ -59,7 +59,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                da_mua: j
+                                da_mua: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_ck') {
@@ -70,7 +70,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_ck: j
+                                nganh_ck: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_BDS_XD') {
@@ -81,7 +81,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_BDS_XD: j
+                                nganh_BDS_XD: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'vn30') {
@@ -92,7 +92,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                vn30: j
+                                vn30: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_phan_bon') {
@@ -103,7 +103,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_phan_bon: j
+                                nganh_phan_bon: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_thep') {
@@ -114,7 +114,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_thep: j
+                                nganh_thep: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_dau_khi') {
@@ -125,7 +125,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_dau_khi: j
+                                nganh_dau_khi: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'nganh_ngan_hang') {
@@ -136,7 +136,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                nganh_ngan_hang: j
+                                nganh_ngan_hang: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     } else if (i.name === 'watching') {
@@ -147,7 +147,7 @@ class Stock extends React.Component<IProps, IState> {
                         Promise.all(listPromises).then((j: any) => {
                             console.log(j)
                             this.setState({
-                                watching: j
+                                watching: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
                     }
@@ -161,12 +161,14 @@ class Stock extends React.Component<IProps, IState> {
 
     getPriceStock = (symbol: string) => {
         if (!symbol) return;
+        const endDate = moment().format('YYYY-MM-DD')
+        const startDate = moment().add(-1, 'days').format('YYYY-MM-DD')
         return axios({
             method: "GET",
             headers: {
                 "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
             },
-            url: `https://restv2.fireant.vn/symbols/${symbol}/historical-quotes?startDate=2021-03-22&endDate=2021-03-23&offset=0&limit=20`,
+            url: `https://restv2.fireant.vn/symbols/${symbol}/historical-quotes?startDate=${startDate}&endDate=${endDate}&offset=0&limit=20`,
         }).then((res: any) => {
             // console.log(res.data)
             let percentChange = 0;
