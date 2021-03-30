@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Test from './Test';
-import Stock from './Stock';
+import Stock from './StockWatchlist';
 import './App.css';
 
 function App() {
