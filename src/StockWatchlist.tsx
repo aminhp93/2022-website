@@ -21,6 +21,14 @@ interface IState {
     watching: any;
 }
 
+
+const config = {
+    apiKey: "AIzaSyAcOZycmQvqEzAOm-SpZ6McUfQBmMtMKLc",
+    discoveryDocs: 
+      ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+    spreadsheetId: "1vZAJq9UXfTYDButjnEJ9eGHi3L-ocwJ0w4Pu9IbbQ-Y"
+  };
+  
 class StockWatchlist extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
@@ -38,7 +46,59 @@ class StockWatchlist extends React.Component<IProps, IState> {
     }
     componentDidMount() {
         this.getWatchlist()
+        this.getStockDrive();
     }
+
+    getStockDrive = () => {
+        (window as any).gapi.load("client", this.initClient);
+    }
+
+    initClient = () => {
+        (window as any).gapi.client
+            .init({
+                apiKey: config.apiKey,
+                // Your API key will be automatically added to the Discovery Document URLs.
+                discoveryDocs: config.discoveryDocs
+            })
+            .then(() => {
+                // 3. Initialize and make the API request.
+                this.load(this.onLoad);
+            });
+    }
+
+    load = (callback: any) => {
+        (window as any).gapi.client.load("sheets", "v4", () => {
+            (window as any).gapi.client.sheets.spreadsheets.values
+              .get({
+                spreadsheetId: config.spreadsheetId,
+                range: "Sheet1!A4:T"
+              })
+              .then((response: any) => {
+                  console.log(response)
+                  const data = response.result.values;
+                  const cars = data.map((car: any) => ({
+                    year: car[0],
+                    make: car[1],
+                    model: car[2]
+                  })) || [];
+                  callback({
+                    cars
+                  });
+                }, (response: any) => {
+                  callback(false, response.result.error);
+                }
+              );
+          });
+    }
+
+    onLoad = (data: any, error: any) => {
+        if (data) {
+          const cars = data.cars;
+        //   this.setState({ cars });
+        } else {
+        //   this.setState({ error });
+        }
+      };
 
     getWatchlist = () => {
         axios({

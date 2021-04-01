@@ -58,6 +58,7 @@ interface Props{
   
     componentDidMount() {
       this.setState({ mounted: true });
+      
     }
   
     generateDOM = () => {
