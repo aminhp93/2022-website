@@ -222,8 +222,8 @@ class StockWatchlist extends React.Component<IProps, IState> {
 
     getPriceStock = (symbol: string) => {
         if (!symbol) return;
-        const endDate = moment().format('YYYY-MM-DD')
-        const startDate = moment().add(-1, 'days').format('YYYY-MM-DD')
+        const endDate = moment().add(-2, 'days').format('YYYY-MM-DD')
+        const startDate = moment().add(-3, 'days').format('YYYY-MM-DD')
         return axios({
             method: "GET",
             headers: {

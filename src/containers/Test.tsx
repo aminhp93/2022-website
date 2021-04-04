@@ -2,9 +2,9 @@ import React from 'react';
 import _ from "lodash";
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
-import '../node_modules/react-grid-layout/css/styles.css'
-import '../node_modules/react-resizable/css/styles.css'
-import './Test.css';
+import '../../node_modules/react-grid-layout/css/styles.css'
+import '../../node_modules/react-resizable/css/styles.css'
+import '../css/Test.css';
 import Stock from './StockWatchlist';
 
 
@@ -113,38 +113,39 @@ interface Props{
 
     render() {
       // eslint-disable-next-line no-unused-vars
-      return (
-        <div>
-          <div>
-            Current Breakpoint: {this.state.currentBreakpoint} (
-            {this.props.cols[this.state.currentBreakpoint]} columns)
-          </div>
-          <div>
-            Compaction type:{" "}
-            {_.capitalize(this.state.compactType) || "No Compaction"}
-          </div>
-          <button onClick={this.onNewLayout}>Generate New Layout</button>
-          <button onClick={this.onCompactTypeChange}>
-            Change Compaction Type
-          </button>
-          <ResponsiveReactGridLayout
-            {...this.props}
-            layouts={this.state.layouts}
-            onBreakpointChange={this.onBreakpointChange}
-            onLayoutChange={this.onLayoutChange}
-            onDrop={this.onDrop}
-            // WidthProvider option
-            measureBeforeMount={false}
-            // I like to have it animate on mount. If you don't, delete `useCSSTransforms` (it's default `true`)
-            // and set `measureBeforeMount={true}`.
-            useCSSTransforms={this.state.mounted}
-            compactType={this.state.compactType}
-            preventCollision={!this.state.compactType}
-          >
-            {this.generateDOM()}
-          </ResponsiveReactGridLayout>
-        </div>
-      );
+      return <div>Test</div>
+      // return (
+      //   <div>
+      //     <div>
+      //       Current Breakpoint: {this.state.currentBreakpoint} (
+      //       {this.props.cols[this.state.currentBreakpoint]} columns)
+      //     </div>
+      //     <div>
+      //       Compaction type:{" "}
+      //       {_.capitalize(this.state.compactType) || "No Compaction"}
+      //     </div>
+      //     <button onClick={this.onNewLayout}>Generate New Layout</button>
+      //     <button onClick={this.onCompactTypeChange}>
+      //       Change Compaction Type
+      //     </button>
+      //     <ResponsiveReactGridLayout
+      //       {...this.props}
+      //       layouts={this.state.layouts}
+      //       onBreakpointChange={this.onBreakpointChange}
+      //       onLayoutChange={this.onLayoutChange}
+      //       onDrop={this.onDrop}
+      //       // WidthProvider option
+      //       measureBeforeMount={false}
+      //       // I like to have it animate on mount. If you don't, delete `useCSSTransforms` (it's default `true`)
+      //       // and set `measureBeforeMount={true}`.
+      //       useCSSTransforms={this.state.mounted}
+      //       compactType={this.state.compactType}
+      //       preventCollision={!this.state.compactType}
+      //     >
+      //       {this.generateDOM()}
+      //     </ResponsiveReactGridLayout>
+      //   </div>
+      // );
     }
     
   }
