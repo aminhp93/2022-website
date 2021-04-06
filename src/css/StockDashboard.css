@@ -1,0 +1,8 @@
+.StockDashboard-table .ant-table.ant-table-small .ant-table-title,
+.StockDashboard-table .ant-table.ant-table-small .ant-table-footer,
+.StockDashboard-table .ant-table.ant-table-small .ant-table-thead > tr > th,
+.StockDashboard-table .ant-table.ant-table-small .ant-table-tbody > tr > td,
+.StockDashboard-table .ant-table.ant-table-small tfoot > tr > th,
+.StockDashboard-table .ant-table.ant-table-small tfoot > tr > td  {
+    padding: 0;
+}

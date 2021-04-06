@@ -4,6 +4,9 @@ import 'antd/dist/antd.css';
 import { Provider } from 'react-redux';
 
 import './css/index.css';
+import './css/StockDashboard.css'
+
+
 import App from './containers/App';
 import store from './store';
 

@@ -5,7 +5,7 @@ import StockDashboard from './StockDashboard';
 class Stock extends React.Component {
     render() {
         return <div>
-            <StockWatchlist/>
+            {/* <StockWatchlist/> */}
             <StockDashboard/>
         </div>
     }
