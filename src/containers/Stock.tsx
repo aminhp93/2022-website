@@ -1,11 +1,11 @@
 import React from 'react';
-import StockWatchlist from './StockWatchlist';
+// import StockWatchlist from './StockWatchlist';
 import StockDashboard from './StockDashboard';
 
 class Stock extends React.Component {
     render() {
         return <div>
-            <StockWatchlist/>
+            {/* <StockWatchlist/> */}
             <StockDashboard/>
         </div>
     }
