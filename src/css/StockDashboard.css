@@ -1,8 +1,6 @@
-.StockDashboard-table .ant-table.ant-table-small .ant-table-title,
-.StockDashboard-table .ant-table.ant-table-small .ant-table-footer,
-.StockDashboard-table .ant-table.ant-table-small .ant-table-thead > tr > th,
-.StockDashboard-table .ant-table.ant-table-small .ant-table-tbody > tr > td,
-.StockDashboard-table .ant-table.ant-table-small tfoot > tr > th,
-.StockDashboard-table .ant-table.ant-table-small tfoot > tr > td  {
+.ant-table-thead > tr > th, 
+.ant-table-tbody > tr > td, 
+.ant-table tfoot > tr > th, 
+.ant-table tfoot > tr > td {
     padding: 0;
 }
