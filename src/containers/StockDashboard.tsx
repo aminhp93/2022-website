@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Input, Table } from "antd";
+import { Button, Input, Table, Menu, Dropdown } from "antd";
 import axios from "axios";
 import { keyBy, get } from "lodash";
 
@@ -12,18 +12,6 @@ import { formatNumber } from "../utils/common";
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const data1 = [
-  {
-    name: 'Page A',
-    uv: 4000,
-  },
-  {
-    name: 'Page B',
-    uv: 3000,
-  }
-];
-
-
 interface IProps {
     listStock: any;
     createStock: any;
@@ -32,6 +20,7 @@ interface IProps {
 interface IState {
     symbolCreate: any;
     listStock: any;
+    listWatchlists: any;
 }
 
 class StockDashboard extends React.Component<IProps, IState> {
@@ -40,17 +29,23 @@ class StockDashboard extends React.Component<IProps, IState> {
         this.state = {
             symbolCreate: '',
             listStock: [],
+            listWatchlists: []
         }
     }
 
     async componentDidMount() {
+        this.getWatchlist()
         const res = await this.props.listStock();
         if (res && res.data) {
             this.setState({
                 listStock: res.data
+            }, () => {
+                const listSymbols = res.data.map((i: any) => i.symbol)
+
+                this.getFinancialIndicatorsAll(listSymbols)
+                this.getFinancialReportsAll(listSymbols)
             })
-            this.getFinancialIndicatorsAll(res.data)
-            this.getFinancialReportsAll(res.data)
+            
         }
     }
 
@@ -74,8 +69,7 @@ class StockDashboard extends React.Component<IProps, IState> {
         listSymbols.map((i: string) => this.create(i))
     }
 
-    getFinancialIndicatorsAll = (data: any) => {
-        const listSymbols = data.map((i: any) => i.symbol)
+    getFinancialIndicatorsAll = (listSymbols: any) => {
         const listPromises: any = [];
         listSymbols.map((j: any) => {
             listPromises.push(this.getFinancialIndicators(j))
@@ -93,8 +87,7 @@ class StockDashboard extends React.Component<IProps, IState> {
         })
     }
 
-    getFinancialReportsAll = (data: any) => {
-        const listSymbols = data.map((i: any) => i.symbol)
+    getFinancialReportsAll = (listSymbols: any) => {
         const listPromises: any = [];
         listSymbols.map((j: any) => {
             listPromises.push(this.getFinancialReports(j))
@@ -228,12 +221,65 @@ class StockDashboard extends React.Component<IProps, IState> {
           
     }
 
+    getWatchlist = () => {
+        axios({
+            method: "GET",
+            url: "https://restv2.fireant.vn/me/watchlists",
+            headers: {
+                "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
+            }
+        }).then(res => {
+            if (res && res.data) {
+                this.setState({
+                    listWatchlists: res.data
+                })
+            }
+        }).catch(e => {
+
+        })
+    }
+
+    handleClick = (data: any) => {
+        const { listWatchlists } = this.state;
+        const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
+        const listSymbols = listWatchlistsObj[Number(data.key)].symbols
+        console.log(listSymbols)
+        const newList = listSymbols.map((i: any) => {
+            return {
+                symbol: i
+            }
+        })
+        this.setState({
+            listStock: newList
+        }, () => {
+            this.getFinancialIndicatorsAll(listSymbols)
+            this.getFinancialReportsAll(listSymbols)
+    
+        })
+       
+    }
+
     render() {
-        const { symbolCreate } = this.state;
+        const { symbolCreate, listWatchlists } = this.state;
+
+        const menu = <Menu onClick={this.handleClick}>
+                {
+                    listWatchlists.map((i: any) => {
+                        return  <Menu.Item key={i.watchlistID}>
+                            {i.name}
+                        </Menu.Item>
+                    })
+                }               
+            </Menu>
         return <div>StockDashboard
             <Input onChange={this.handleChangeInput} onPressEnter={() => this.create(symbolCreate)}/>
-            <Button onClick={() => this.create(symbolCreate)}>Create</Button>
-            <Button onClick={() => this.updateListStock()}>Update list stock </Button>
+            <Button disabled onClick={() => this.create(symbolCreate)}>Create</Button>
+            <Button disabled onClick={() => this.updateListStock()}>Update list stock </Button>
+            <div>
+            <Dropdown overlay={menu} trigger={['click']} >
+                <div>Click me</div>
+            </Dropdown>
+            </div>
             {this.renderListStock()}
         </div>
     }
