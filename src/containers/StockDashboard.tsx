@@ -35,6 +35,9 @@ class StockDashboard extends React.Component<IProps, IState> {
 
     async componentDidMount() {
         this.getWatchlist()
+    }
+
+    fetchAll = async () => {
         const res = await this.props.listStock();
         if (res && res.data) {
             this.setState({
@@ -240,23 +243,26 @@ class StockDashboard extends React.Component<IProps, IState> {
     }
 
     handleClick = (data: any) => {
-        const { listWatchlists } = this.state;
-        const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
-        const listSymbols = listWatchlistsObj[Number(data.key)].symbols
-        console.log(listSymbols)
-        const newList = listSymbols.map((i: any) => {
-            return {
-                symbol: i
-            }
-        })
-        this.setState({
-            listStock: newList
-        }, () => {
-            this.getFinancialIndicatorsAll(listSymbols)
-            this.getFinancialReportsAll(listSymbols)
-    
-        })
-       
+        if (data.key === "all") {
+            this.fetchAll()
+        } else {
+            const { listWatchlists } = this.state;
+            const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
+            const listSymbols = listWatchlistsObj[Number(data.key)].symbols
+            console.log(listSymbols)
+            const newList = listSymbols.map((i: any) => {
+                return {
+                    symbol: i
+                }
+            })
+            this.setState({
+                listStock: newList
+            }, () => {
+                this.getFinancialIndicatorsAll(listSymbols)
+                this.getFinancialReportsAll(listSymbols)
+        
+            })
+        }
     }
 
     render() {
@@ -269,7 +275,8 @@ class StockDashboard extends React.Component<IProps, IState> {
                             {i.name}
                         </Menu.Item>
                     })
-                }               
+                }     
+                <Menu.Item key="all">All</Menu.Item>          
             </Menu>
         return <div>StockDashboard
             <Input onChange={this.handleChangeInput} onPressEnter={() => this.create(symbolCreate)}/>

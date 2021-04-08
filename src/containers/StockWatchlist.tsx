@@ -19,6 +19,7 @@ interface IState {
     nganh_dau_khi: any;
     nganh_ngan_hang: any;
     watching: any;
+    aim_to_buy: any;
 }
 
 
@@ -42,6 +43,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
             nganh_dau_khi: [],
             nganh_ngan_hang: [],
             watching: [],
+            aim_to_buy: []
         }
     }
     componentDidMount() {
@@ -211,7 +213,19 @@ class StockWatchlist extends React.Component<IProps, IState> {
                                 watching: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
                             })
                         })
+                    } else if (i.name === 'aim_to_buy') {
+                        const listPromises: any = [];
+                        i.symbols.map((j: any) => {
+                            listPromises.push(this.getPriceStock(j))
+                        })
+                        Promise.all(listPromises).then((j: any) => {
+                            console.log(j)
+                            this.setState({
+                                aim_to_buy: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
+                            })
+                        })
                     }
+                    
                 })
             }
             
@@ -244,7 +258,8 @@ class StockWatchlist extends React.Component<IProps, IState> {
         const { 
             da_mua, nganh_ck, nganh_BDS_XD,
             vn30, nganh_phan_bon, nganh_thep,
-            nganh_dau_khi, nganh_ngan_hang, watching
+            nganh_dau_khi, nganh_ngan_hang, watching,
+            aim_to_buy
         } = this.state;
 
           
@@ -326,6 +341,14 @@ class StockWatchlist extends React.Component<IProps, IState> {
                         <div style={{ width: "100px" }}>watching</div>
                         <div>
                             <Table pagination={false} size="small" dataSource={watching} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                     <div className="flex">
+                        <div style={{ width: "100px" }}>aim_to_buy</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={aim_to_buy} columns={columns} showHeader={false}/>
                         </div>
                     </div>
                 </div>

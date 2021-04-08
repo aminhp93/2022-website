@@ -9,6 +9,8 @@ import {
     fetchAccountPortfolio,
     fetchAccountStocks
 } from '../reducers/account';
+import { formatNumber } from "../utils/common";
+
 
 interface IProps {
     postAuthToken: any;
@@ -44,43 +46,43 @@ class Account extends React.Component<IProps, IState> {
                 {
                     title: 'currentPrice',
                     render: (data: any) => {
-                        return <div>{data.currentPrice}</div>
+                        return <div>{formatNumber(data.currentPrice)}</div>
                     },
                 },
                 {
                     title: 'costPrice',
                     render: (data: any) => {
-                        return <div>{data.costPrice}</div>
+                        return <div>{formatNumber(data.costPrice)}</div>
                     },
                 },
                 {
                     title: 'quantity',
                     render: (data: any) => {
-                        return <div>{data.quantity}</div>
+                        return <div>{formatNumber(data.quantity)}</div>
                     },
                 },
                 {
                     title: 'currentValue',
                     render: (data: any) => {
-                        return <div>{data.currentValue}</div>
+                        return <div>{formatNumber(data.currentValue)}</div>
                     },
                 },
                 {
                     title: 'cost',
                     render: (data: any) => {
-                        return <div>{data.cost}</div>
+                        return data && data.cost && <div>{formatNumber(Number(data.cost.toFixed(0)))}</div>
                     },
                 },
                 {
                     title: 'gainLoss',
                     render: (data: any) => {
-                        return <div>{data.gainLoss}</div>
+                        return data && data.gainLoss && <div>{formatNumber(Number(data.gainLoss.toFixed(0)))}</div>
                     },
                 },
                 {
                     title: 'gainLossRatio',
                     render: (data: any) => {
-                        return <div>{data.gainLossRatio}</div>
+                        return data && data.gainLossRatio && <div>{Number(data.gainLossRatio * 100).toFixed(1)}</div>
                     },
                 }
             ]
@@ -119,10 +121,49 @@ class Account extends React.Component<IProps, IState> {
             totalCurrentValue
         } = accountPortfolioObj;
 
-        const dataSource = (stocks || []).sort((a: any, b: any) => b.currentValue - a.currentValue)
+        const dataSource = (stocks || []).filter((i: any) => i.symbol !== "VRE" && i.symbol !== "IDI" ).sort((a: any, b: any) => b.currentValue - a.currentValue)
+
+        const cashObj = {
+            symbol: "Cash",
+            currentPrice: "",
+            costPrice: "",
+            quantity: "",
+            currentValue: "",
+            cost: "",
+            gainLoss: accountAssetsObj && accountAssetsObj.cashAvailable,
+            gainLossRatio: "",
+        }
+
+        const navObj = {
+            symbol: "NAV",
+            currentPrice: "",
+            costPrice: "",
+            quantity: "",
+            currentValue: "",
+            cost: "",
+            gainLoss: accountAssetsObj && accountAssetsObj.nav,
+            gainLossRatio: "",
+        }
+
+        const profitObj = {
+            symbol: "profit",
+            currentPrice: "",
+            costPrice: "",
+            quantity: "",
+            currentValue: "",
+            cost: "",
+            gainLoss: accountPortfolioObj && accountPortfolioObj.profit,
+            gainLossRatio: "",
+        }
+
+        dataSource.push(cashObj)
+        dataSource.push(navObj)
+        dataSource.push(profitObj)
+
         return (
             <div>
-                <Table pagination={false} size="small" dataSource={dataSource} columns={columns} showHeader={false}/>
+                <Table pagination={false} size="small" dataSource={dataSource} columns={columns} />
+                {/* <Table pagination={false} size="small" dataSource={dataSource2} columns={columns} showHeader={false}/> */}
             </div>
         )
     }
