@@ -55,3 +55,11 @@ export const fetchAccountStocks = (token: string): ThunkActionType => async () =
     const res = await AccountService.fetchAccountStocks(headers)
     return res
 }
+
+export const fetchOrdersHistory = (token: string): ThunkActionType => async () => {
+    const headers = {
+        'X-Auth-Token': token
+    }
+    const res = await AccountService.fetchOrdersHistory(headers)
+    return res
+}

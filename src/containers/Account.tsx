@@ -1,13 +1,16 @@
 import React from "react";
 import { connect } from 'react-redux';
 import { Table } from 'antd';
+import { keyBy } from 'lodash';
+import moment from 'moment';
 
 import {
     postAuthToken,
     fetchAccount,
     fetchAccountAssets,
     fetchAccountPortfolio,
-    fetchAccountStocks
+    fetchAccountStocks,
+    fetchOrdersHistory
 } from '../reducers/account';
 import { formatNumber } from "../utils/common";
 
@@ -18,14 +21,16 @@ interface IProps {
     fetchAccountAssets: any;
     fetchAccountPortfolio: any;
     fetchAccountStocks: any;
+    fetchOrdersHistory: any;
 }
 
 interface IState {
-    accountObj: any,
-    accountAssetsObj: any,
-    accountPortfolioObj: any,
-    accountStocksObj: any,
-    columns: any,
+    accountObj: any;
+    accountAssetsObj: any;
+    accountPortfolioObj: any;
+    accountStocksObj: any;
+    columns: any;
+    historyBuyList: any;
 }
 
 class Account extends React.Component<IProps, IState> {
@@ -36,6 +41,7 @@ class Account extends React.Component<IProps, IState> {
             accountAssetsObj: {},
             accountPortfolioObj: {},
             accountStocksObj: [],
+            historyBuyList: [],
             columns: [
                 {
                     title: 'symbol',
@@ -84,6 +90,19 @@ class Account extends React.Component<IProps, IState> {
                     render: (data: any) => {
                         return data && data.gainLossRatio && <div>{Number(data.gainLossRatio * 100).toFixed(1)}</div>
                     },
+                },
+                {
+                    title: 'Date',
+                    render: (data: any) => {
+                        console.log(data)
+                        const today = moment();
+                        const transactionDate = moment(data.transactionDate)
+                        return data && data.transactionDate && (
+                            <div>
+                                {today.diff(transactionDate, 'days')} days - {transactionDate.format("YYYY-MM-DD")}
+                            </div>
+                        )
+                    }
                 }
             ]
         }
@@ -95,12 +114,16 @@ class Account extends React.Component<IProps, IState> {
         const res2 = await this.props.fetchAccountAssets(res.data.token)
         const res3 = await this.props.fetchAccountPortfolio(res.data.token)
         const res4 = await this.props.fetchAccountStocks(res.data.token)
+        const res5 = await this.props.fetchOrdersHistory(res.data.token)
 
         this.setState({
             accountObj: res1.data.account,
             accountAssetsObj: res2.data,
             accountPortfolioObj: res3.data,
-            accountStocksObj: res4.data.stocks
+            accountStocksObj: res4.data.stocks,
+            historyBuyList: res5.data.filter((i: any) => 
+            // i.orsStatus === "Filled" && 
+            i.execType === "NB")
         })
     }
 
@@ -110,7 +133,8 @@ class Account extends React.Component<IProps, IState> {
             accountAssetsObj,
             accountPortfolioObj,
             accountStocksObj,
-            columns
+            columns,
+            historyBuyList
         } = this.state;
 
         const {
@@ -120,8 +144,15 @@ class Account extends React.Component<IProps, IState> {
             totalCost,
             totalCurrentValue
         } = accountPortfolioObj;
-
-        const dataSource = (stocks || []).filter((i: any) => i.symbol !== "VRE" && i.symbol !== "IDI" ).sort((a: any, b: any) => b.currentValue - a.currentValue)
+        
+        const dataSource = (stocks || [])
+            .filter((i: any) => i.symbol !== "VRE" && i.symbol !== "IDI" )
+            .sort((a: any, b: any) => b.currentValue - a.currentValue)
+        const historyBuyListObj = keyBy(historyBuyList, "symbol")
+        dataSource.map((i: any) => {
+            i.transactionDate = ((historyBuyListObj[i.symbol]) || {}).transactionDate
+            return i
+        })
 
         const cashObj = {
             symbol: "Cash",
@@ -174,7 +205,8 @@ const mapDispatchToProps = {
     fetchAccount,
     fetchAccountAssets,
     fetchAccountPortfolio,
-    fetchAccountStocks
+    fetchAccountStocks,
+    fetchOrdersHistory
 }
 
 export default connect(null,mapDispatchToProps)(Account);

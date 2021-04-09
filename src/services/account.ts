@@ -37,6 +37,13 @@ const AccountService = {
             url: AccountUrls.fetchAccountStocks,
         });
     },
+    fetchOrdersHistory(headers: any) {
+        return request({
+            headers,
+            method: 'GET',
+            url: AccountUrls.fetchOrdersHistory,
+        });
+    },
 
 };
 
