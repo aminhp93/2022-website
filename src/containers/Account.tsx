@@ -121,9 +121,10 @@ class Account extends React.Component<IProps, IState> {
             accountAssetsObj: res2.data,
             accountPortfolioObj: res3.data,
             accountStocksObj: res4.data.stocks,
-            historyBuyList: res5.data.filter((i: any) => 
+            historyBuyList: res5.data
+            // .filter((i: any) => 
             // i.orsStatus === "Filled" && 
-            i.execType === "NB")
+            // i.execType === "NB")
         })
     }
 
@@ -148,7 +149,18 @@ class Account extends React.Component<IProps, IState> {
         const dataSource = (stocks || [])
             .filter((i: any) => i.symbol !== "VRE" && i.symbol !== "IDI" )
             .sort((a: any, b: any) => b.currentValue - a.currentValue)
-        const historyBuyListObj = keyBy(historyBuyList, "symbol")
+
+        const temp: any = [];
+        const filteredHistoryBuyList: any = []
+        historyBuyList.map((i: any) => {
+            if (i && i.symbol) {
+                if (!temp.includes(i.symbol)) {
+                    temp.push(i.symbol)
+                    filteredHistoryBuyList.push(i)
+                }
+            }
+        })
+        const historyBuyListObj = keyBy(filteredHistoryBuyList, "symbol")
         dataSource.map((i: any) => {
             i.transactionDate = ((historyBuyListObj[i.symbol]) || {}).transactionDate
             return i
