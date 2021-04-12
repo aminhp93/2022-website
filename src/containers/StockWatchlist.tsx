@@ -30,6 +30,8 @@ const config = {
     spreadsheetId: "1vZAJq9UXfTYDButjnEJ9eGHi3L-ocwJ0w4Pu9IbbQ-Y"
   };
   
+
+const TIMEOUT_TIME = 1000 * 60
 class StockWatchlist extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
@@ -48,6 +50,9 @@ class StockWatchlist extends React.Component<IProps, IState> {
     }
     componentDidMount() {
         this.getWatchlist()
+        setInterval(() => {
+            this.getWatchlist()
+        }, TIMEOUT_TIME)
         this.getStockDrive();
     }
 
@@ -236,8 +241,21 @@ class StockWatchlist extends React.Component<IProps, IState> {
 
     getPriceStock = (symbol: string) => {
         if (!symbol) return;
-        const endDate = moment().add(0, 'days').format('YYYY-MM-DD')
-        const startDate = moment().add(-1, 'days').format('YYYY-MM-DD')
+        let startCount = -1;
+        let endCount = 0;
+        if (moment().format('ddd') === "Sat") {
+            startCount = -2
+            endCount = -1
+        } else if (moment().format("ddd") === "Sun") {
+            startCount = -3
+            endCount = -2
+        } else if (moment().format("ddd") === "Mon") {
+            startCount = -3
+            endCount = 0
+        }
+        const startDate = moment().add(startCount, 'days').format('YYYY-MM-DD')
+        const endDate = moment().add(endCount, 'days').format('YYYY-MM-DD')
+        
         return axios({
             method: "GET",
             headers: {

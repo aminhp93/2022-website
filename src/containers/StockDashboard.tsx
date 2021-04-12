@@ -148,12 +148,14 @@ class StockDashboard extends React.Component<IProps, IState> {
         const columns = [
             {
                 title: 'symbol',
+                sorter: (a: any, b: any) => a.symbol - b.symbol,
                 render: (data: any) => {
                     return data.symbol
                 }
             },
             {
                 title: 'ROE',
+                sorter: (a: any, b: any) => a.ROE - b.ROE,
                 render: (data: any) => {
                     const ROE = data && data.ROE
                     return ROE && formatNumber(ROE.toFixed(0))
@@ -161,6 +163,7 @@ class StockDashboard extends React.Component<IProps, IState> {
             },
             {
                 title: 'EPS',
+                sorter: (a: any, b: any) => a.EPS - b.EPS,
                 render: (data: any) => {
                     const EPS = data && data.EPS
                     return EPS && formatNumber(EPS.toFixed(0))
@@ -184,8 +187,14 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={150} height={40} data={data2}>
-                            <Bar dataKey="value" fill="#8884d8" />
+                        <BarChart width={100} height={40} data={data2}>
+                            <Bar dataKey="value">
+                                {
+                                    data2.map((entry: any, index: any) => (
+                                        <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
+                                    ))
+                                }
+                            </Bar>
                         </BarChart>
                     )
                 }
@@ -208,8 +217,14 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={150} height={40} data={data2}>
-                            <Bar dataKey="value" fill="#8884d8" />
+                        <BarChart width={100} height={40} data={data2}>
+                            <Bar dataKey="value">
+                            {
+                                data2.map((entry: any, index: any) => (
+                                    <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
+                                ))
+                            }
+                            </Bar>
                         </BarChart>
                     )
                 }
