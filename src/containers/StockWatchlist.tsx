@@ -301,7 +301,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
             },
         ];  
         
-        return <div className="flex">
+        return <div className="flex" style={{ position: "relative", height: "100%" }}>
                 <div>
                     <div className="flex">
                         <div style={{ width: "160px" }}>da_mua</div>
@@ -309,42 +309,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
                             <Table pagination={false} size="small" dataSource={da_mua} columns={columns} showHeader={false}/>
                         </div>
                     </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_ck</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_ck} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_BDS_XD</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_BDS_XD} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_phan_bon</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_phan_bon} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_thep</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_thep} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_dau_khi</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_dau_khi} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div className="flex" style={{ borderTop: '1px solid black' }}>
-                        <div style={{ width: "160px" }}>nganh_ngan_hang</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_ngan_hang} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div>
                      <div className="flex" style={{ borderLeft: '1px solid black', borderRight: '1px solid black' }}>
@@ -369,6 +334,45 @@ class StockWatchlist extends React.Component<IProps, IState> {
                             <Table pagination={false} size="small" dataSource={aim_to_buy} columns={columns} showHeader={false}/>
                         </div>
                     </div>
+                </div>
+                <div style={{ position: "absolute", bottom: 0}} className="flex">
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_ck</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_ck} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_BDS_XD</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_BDS_XD} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_phan_bon</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_phan_bon} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_thep</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_thep} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_dau_khi</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_dau_khi} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
+                        <div style={{ width: "160px" }}>nganh_ngan_hang</div>
+                        <div>
+                            <Table pagination={false} size="small" dataSource={nganh_ngan_hang} columns={columns} showHeader={false}/>
+                        </div>
+                    </div>
+
                 </div>
         </div>
     }
