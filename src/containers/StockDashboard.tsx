@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Button, Input, Table, Menu, Dropdown } from "antd";
 import axios from "axios";
 import { keyBy, get } from "lodash";
+import moment from "moment";
 
 import {
     listStock,
@@ -107,6 +108,40 @@ class StockDashboard extends React.Component<IProps, IState> {
         })
     }
 
+    getPostsAll = (listSymbols: any) => {
+        const listPromises: any = [];
+        listSymbols.map((j: any) => {
+            listPromises.push(this.getPosts(j))
+        })
+        Promise.all(listPromises).then(res => {
+            const mappedRes: any = keyBy(res, 'symbol');
+            const newStockList = this.state.listStock.map((i: any) => {
+                i.posts = mappedRes[i.symbol].posts
+                return i
+            })
+            this.setState({
+                listStock: newStockList
+            })
+        })
+    }
+
+    getPosts = (symbol: string) => {
+        if (!symbol) return;
+        return axios({
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
+            },
+            url: `https://restv2.fireant.vn/posts?symbol=${symbol}&type=1&offset=0&limit=20`
+        }).then((res: any) => {
+
+            const posts = res.data
+            return { symbol, posts }
+        }).catch((e: any) => {
+            console.log(e)
+        })
+    }
+
     getFinancialIndicators = (symbol: string) => {
         if (!symbol) return;
         return axios({
@@ -187,7 +222,12 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={100} height={40} data={data2}>
+                        <BarChart width={500} height={100} data={data2}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
                             <Bar dataKey="value">
                                 {
                                     data2.map((entry: any, index: any) => (
@@ -217,7 +257,12 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={100} height={40} data={data2}>
+                        <BarChart width={500} height={100} data={data2}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
                             <Bar dataKey="value">
                             {
                                 data2.map((entry: any, index: any) => (
@@ -229,6 +274,49 @@ class StockDashboard extends React.Component<IProps, IState> {
                     )
                 }
             },
+            {
+                title: "News",
+                render: (data: any) => {
+                    console.log(data);
+                    const data2: any = [];
+                    
+                    for (let i=0; i < 7; i++) {
+                        const name = moment().add(-i, "days").format("MM-DD")
+                        const value = data.posts && data.posts.filter((i: any) => moment(i.date).format("MM-DD") === name).length
+                        data2.push({
+                            name,
+                            value
+                        })
+                    }
+                    console.log(data2)
+                    return <div style={{ height: "120px", overflow: "auto", justifyContent: "space-between" }} className="flex">
+                        <div>
+                            {data.posts && data.posts.map((i: any) => {
+                                return <div>{i.title} - {moment(i.date).format("MM-DD")}</div>
+                            })}
+                        </div>
+                        <div>
+                            <BarChart width={500} height={100} data={data2}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="value">
+                                    {
+                                        data2.map((entry: any, index: any) => (
+                                            <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
+                                        ))
+                                        
+                                    }
+                                </Bar>
+                                
+                            </BarChart>
+                        </div>
+                        
+                    </div>
+                }
+            }
         ];
           
         return <Table 
@@ -275,6 +363,7 @@ class StockDashboard extends React.Component<IProps, IState> {
             }, () => {
                 this.getFinancialIndicatorsAll(listSymbols)
                 this.getFinancialReportsAll(listSymbols)
+                this.getPostsAll(listSymbols)
         
             })
         }
@@ -293,10 +382,10 @@ class StockDashboard extends React.Component<IProps, IState> {
                 }     
                 <Menu.Item key="all">All</Menu.Item>          
             </Menu>
-        return <div>StockDashboard
+        return <div>
             <Input onChange={this.handleChangeInput} onPressEnter={() => this.create(symbolCreate)}/>
             <Button disabled onClick={() => this.create(symbolCreate)}>Create</Button>
-            <Button disabled onClick={() => this.updateListStock()}>Update list stock </Button>
+            <Button disabled onClick={() => this.updateListStock()}>Update list stock</Button>
             <div>
             <Dropdown overlay={menu} trigger={['click']} >
                 <div>Click me</div>
