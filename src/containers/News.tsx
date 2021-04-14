@@ -1,6 +1,8 @@
 import axios from "axios";
 import React from "react";
+import moment from "moment";
 import { Modal } from "antd";
+import ReactHtmlParser from 'react-html-parser';
 
 interface IProps {
     url: any;
@@ -8,14 +10,14 @@ interface IProps {
 }
 
 interface IState {
-    content: string;
+    data: any;
 }
 
 class News extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            content: "",
+            data: null,
         }
     }
 
@@ -27,7 +29,11 @@ class News extends React.Component<IProps, IState> {
             },
             method: "GET"
         }).then(res => {
-            console.log(res)
+            if (res && res.data) {
+                this.setState({
+                    data: res.data
+                })
+            }
         }).catch(e => {
             
         })
@@ -42,14 +48,21 @@ class News extends React.Component<IProps, IState> {
     }
 
     render() {
+        const { data } = this.state;
+        const descriptionText = data && data.description
+        const contentText = data && data.content && ReactHtmlParser(data.content)
+        const dateText = data && moment(data.date).format("YYYY-MM-DD")
         return <Modal 
             title="Basic Modal" 
             visible={true} 
+            width={800}
             onOk={this.handleOk} 
             onCancel={this.handleCancel}>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
+            <div>
+                <div>{descriptionText}</div>
+                <div>{dateText}</div>
+                <div>{contentText}</div>
+            </div>
         </Modal>
     }
 }

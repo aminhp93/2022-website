@@ -283,7 +283,6 @@ class StockDashboard extends React.Component<IProps, IState> {
             {
                 title: "News",
                 render: (data: any) => {
-                    console.log(data);
                     const data2: any = [];
                     
                     for (let i=0; i < 7; i++) {
@@ -294,21 +293,19 @@ class StockDashboard extends React.Component<IProps, IState> {
                             value
                         })
                     }
-                    console.log(data2)
                     return <div style={{ height: "120px", overflow: "auto", justifyContent: "space-between" }} className="flex">
                         <div>
                             {data.posts && data.posts.map((i: any, index: any) => {
                                 return <div 
-                                className="flex ellipsis"
+                                className="flex"
                                 style={{
-                                    width: "250px",
                                     justifyContent: "space-between"
                                 }}
                                 onClick={() => this.setState({ 
                                     modal: "news", 
                                     newsUrl: `https://restv2.fireant.vn/posts/${i.postID}/`
                                 })}>
-                                    <div>{`${index + 1} - ${i.title}`}</div>
+                                    <div style={{ width: "250px" }} className="ellipsis">{`${index + 1} - ${i.title}`}</div>
                                     <div>{moment(i.date).format("MM-DD")}</div>
                                 </div>
                             })}
@@ -368,7 +365,6 @@ class StockDashboard extends React.Component<IProps, IState> {
             const { listWatchlists } = this.state;
             const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
             const listSymbols = listWatchlistsObj[Number(data.key)].symbols
-            console.log(listSymbols)
             const newList = listSymbols.map((i: any) => {
                 return {
                     symbol: i

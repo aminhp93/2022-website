@@ -94,7 +94,6 @@ class Account extends React.Component<IProps, IState> {
                 {
                     title: 'Date',
                     render: (data: any) => {
-                        console.log(data)
                         const today = moment();
                         const transactionDate = moment(data.transactionDate)
                         return data && data.transactionDate && (
