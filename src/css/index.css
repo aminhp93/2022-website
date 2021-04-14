@@ -35,3 +35,9 @@ code {
 .bg-yellow {
   background-color: yellow;
 }
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

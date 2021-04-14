@@ -9,9 +9,11 @@ import {
     listStock,
     createStock
 } from '../reducers/stock';
-import { formatNumber } from "../utils/common";
+import { formatNumber, BILLION_UNIT } from "../utils/common";
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import News from "./News";
+
 
 interface IProps {
     listStock: any;
@@ -22,15 +24,19 @@ interface IState {
     symbolCreate: any;
     listStock: any;
     listWatchlists: any;
+    modal: string;
+    newsUrl: string;
 }
 
 class StockDashboard extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            symbolCreate: '',
+            symbolCreate: "",
             listStock: [],
-            listWatchlists: []
+            listWatchlists: [],
+            modal: "",
+            newsUrl: ""
         }
     }
 
@@ -216,19 +222,19 @@ class StockDashboard extends React.Component<IProps, IState> {
                             if (index > 1 && rows[3][1] === "NetProfit") {
                                 data2.push({
                                     name: i,
-                                    value: rows[3][index]
+                                    value: Number((rows[3][index] / BILLION_UNIT).toFixed(0))
                                 })
                             }
                         })
                     }
                     return (
-                        <BarChart width={500} height={100} data={data2}>
+                        <BarChart width={300} height={100} data={data2}>
                             <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                            <Bar dataKey="value">
+                            <XAxis dataKey="name" style={{ fontSize: "9px"}} />
+                            <YAxis />
+                            <Tooltip />
+                                {/* <Legend /> */}
+                            <Bar dataKey="value" barSize={20}>
                                 {
                                     data2.map((entry: any, index: any) => (
                                         <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
@@ -251,19 +257,19 @@ class StockDashboard extends React.Component<IProps, IState> {
                             if (index > 1 && rows[0][1] === "Sales") {
                                 data2.push({
                                     name: i,
-                                    value: rows[0][index]
+                                    value: Number((rows[0][index] / BILLION_UNIT).toFixed(0))
                                 })
                             }
                         })
                     }
                     return (
-                        <BarChart width={500} height={100} data={data2}>
+                        <BarChart width={300} height={100} data={data2}>
                             <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                            <Bar dataKey="value">
+                            <XAxis dataKey="name" style={{ fontSize: "9px"}} />
+                            <YAxis />
+                            <Tooltip />
+                                {/* <Legend /> */}
+                            <Bar dataKey="value" barSize={20}>
                             {
                                 data2.map((entry: any, index: any) => (
                                     <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
@@ -291,26 +297,36 @@ class StockDashboard extends React.Component<IProps, IState> {
                     console.log(data2)
                     return <div style={{ height: "120px", overflow: "auto", justifyContent: "space-between" }} className="flex">
                         <div>
-                            {data.posts && data.posts.map((i: any) => {
-                                return <div>{i.title} - {moment(i.date).format("MM-DD")}</div>
+                            {data.posts && data.posts.map((i: any, index: any) => {
+                                return <div 
+                                className="flex ellipsis"
+                                style={{
+                                    width: "250px",
+                                    justifyContent: "space-between"
+                                }}
+                                onClick={() => this.setState({ 
+                                    modal: "news", 
+                                    newsUrl: `https://restv2.fireant.vn/posts/${i.postID}/`
+                                })}>
+                                    <div>{`${index + 1} - ${i.title}`}</div>
+                                    <div>{moment(i.date).format("MM-DD")}</div>
+                                </div>
                             })}
                         </div>
                         <div>
-                            <BarChart width={500} height={100} data={data2}>
+                            <BarChart width={400} height={100} data={data2}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
+                                <XAxis dataKey="name" style={{ fontSize: "9px"}} />
                                 <YAxis />
                                 <Tooltip />
-                                <Legend />
-                                <Bar dataKey="value">
+                                {/* <Legend /> */}
+                                <Bar dataKey="value" barSize={20}>
                                     {
                                         data2.map((entry: any, index: any) => (
                                             <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
                                         ))
-                                        
                                     }
                                 </Bar>
-                                
                             </BarChart>
                         </div>
                         
@@ -370,7 +386,7 @@ class StockDashboard extends React.Component<IProps, IState> {
     }
 
     render() {
-        const { symbolCreate, listWatchlists } = this.state;
+        const { symbolCreate, listWatchlists, modal, newsUrl } = this.state;
 
         const menu = <Menu onClick={this.handleClick}>
                 {
@@ -392,6 +408,7 @@ class StockDashboard extends React.Component<IProps, IState> {
             </Dropdown>
             </div>
             {this.renderListStock()}
+            {modal === "news" && <News close={() => this.setState({ modal: "" })} url={newsUrl} />}
         </div>
     }
 }
