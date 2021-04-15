@@ -127,6 +127,10 @@ class Account extends React.Component<IProps, IState> {
         })
     }
 
+    fetchCashStatement = () => {
+        const url = "https://trade-report-api.vndirect.com.vn/accounts/0001069456/cashStatement?index=1&offset=50&types="
+    }
+
     render() {
         const {
             accountObj,
