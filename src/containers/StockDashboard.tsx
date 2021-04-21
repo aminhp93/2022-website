@@ -1,13 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Input, Table, Menu, Dropdown } from "antd";
+import { Table, Menu, Dropdown } from "antd";
 import axios from "axios";
 import { keyBy, get } from "lodash";
 import moment from "moment";
 
 import {
     listStock,
-    createStock
 } from '../reducers/stock';
 import { formatNumber, BILLION_UNIT } from "../utils/common";
 
@@ -17,26 +16,25 @@ import News from "./News";
 
 interface IProps {
     listStock: any;
-    createStock: any;
 }
 
 interface IState {
-    symbolCreate: any;
     listStock: any;
     listWatchlists: any;
     modal: string;
     newsUrl: string;
+    selectedWatchlist: string;
 }
 
 class StockDashboard extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            symbolCreate: "",
             listStock: [],
             listWatchlists: [],
             modal: "",
-            newsUrl: ""
+            newsUrl: "",
+            selectedWatchlist: null
         }
     }
 
@@ -57,26 +55,6 @@ class StockDashboard extends React.Component<IProps, IState> {
             })
             
         }
-    }
-
-    handleChangeInput = (e: any) => {
-        this.setState({
-            symbolCreate: e.target.value
-        })
-    }
-
-    create = (symbol="") => {
-        if (!symbol) return;
-        const data = {
-            symbol
-        }
-        this.props.createStock(data)
-    }
-
-    updateListStock = () => {
-        const string = "AAAABBACBACVADGAGGAGRAMVANVAPHASMBCCBCGBCMBFCBIDBMIBMPBSIBSRBVBBVHBVSBWEC4GCCLCEOCIICKGCRECSVCTDCTFCTGCTICTRCTSD2DDBCDCLDCMDDVDGCDGWDHCDIGDPGDPMDRCDRHDVNDXGEIBELCEVFEVGFCNFITFLCFMCFPTFRTFTSG36GASGEGGEXGILGMDGTNGVRHAGHAHHAXHBCHCMHDBHDCHDGHHSHIIHNDHNGHPGHPXHSGHT1HTNHUTHVNIBCIDCIDIIDJIJCILBIMPITAKBCKDCKDHKOSKSBL14LASLCGLDGLHGLIXLPBLSSLTGMBBMBSMIGMPCMSBMSNMSRMWGNAFNDNNHANHHNKGNLGNRCNT2NTCNTLNVBNVLOCBOGCOILPANPC1PDRPETPGCPHRPLCPLXPNJPOMPOWPPCPSHPTBPVCPVDPVMPVPPVSPVTQCGQNSQTPREES99SABSAMSBSSBTSCISCRSGPSGTSHBSHISHSSIPSJSSMCSSISTBSTKSZCTARTCBTCHTCMTDCTDHTDMTDPTHDTIDTIGTIPTLHTNGTNHTPBTTATTFTV2TVNVC3VCBVCGVCIVCRVCSVDSVEAVGCVGIVGSVGTVHCVHMVIBVICVIPVIXVJCVNDVNGVNMVOCVPBVPGVPIVREVTP"
-        const listSymbols: any = string.match(/.{1,3}/g);
-        listSymbols.map((i: string) => this.create(i))
     }
 
     getFinancialIndicatorsAll = (listSymbols: any) => {
@@ -114,15 +92,15 @@ class StockDashboard extends React.Component<IProps, IState> {
         })
     }
 
-    getPostsAll = (listSymbols: any) => {
+    getNewsAll = (listSymbols: any) => {
         const listPromises: any = [];
         listSymbols.map((j: any) => {
-            listPromises.push(this.getPosts(j))
+            listPromises.push(this.getPosts(j, 1))
         })
         Promise.all(listPromises).then(res => {
             const mappedRes: any = keyBy(res, 'symbol');
             const newStockList = this.state.listStock.map((i: any) => {
-                i.posts = mappedRes[i.symbol].posts
+                i.newsPosts = mappedRes[i.symbol].posts
                 return i
             })
             this.setState({
@@ -131,14 +109,31 @@ class StockDashboard extends React.Component<IProps, IState> {
         })
     }
 
-    getPosts = (symbol: string) => {
+    getCommunityAll = (listSymbols: any) => {
+        const listPromises: any = [];
+        listSymbols.map((j: any) => {
+            listPromises.push(this.getPosts(j, 0))
+        })
+        Promise.all(listPromises).then(res => {
+            const mappedRes: any = keyBy(res, 'symbol');
+            const newStockList = this.state.listStock.map((i: any) => {
+                i.communityPosts = mappedRes[i.symbol].posts
+                return i
+            })
+            this.setState({
+                listStock: newStockList
+            })
+        })
+    }
+
+    getPosts = (symbol: string, type: number) => {
         if (!symbol) return;
         return axios({
             method: "GET",
             headers: {
                 "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
             },
-            url: `https://restv2.fireant.vn/posts?symbol=${symbol}&type=1&offset=0&limit=20`
+            url: `https://restv2.fireant.vn/posts?symbol=${symbol}&type=${type}&offset=0&limit=20`
         }).then((res: any) => {
 
             const posts = res.data
@@ -189,7 +184,7 @@ class StockDashboard extends React.Component<IProps, IState> {
         const columns = [
             {
                 title: 'symbol',
-                sorter: (a: any, b: any) => a.symbol - b.symbol,
+                sorter: (a: any, b: any) => a.symbol.localeCompare(b.symbol),
                 render: (data: any) => {
                     return data.symbol
                 }
@@ -212,6 +207,7 @@ class StockDashboard extends React.Component<IProps, IState> {
             },
             {
                 title: 'LN Sau thue',
+                className: "lnst-column",
                 render: (data: any) => {
                     const columns = get(data, 'financialReports.columns')
                     const rows = get(data, 'financialReports.rows')
@@ -228,13 +224,13 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={300} height={100} data={data2}>
+                        <BarChart width={250} height={100} data={data2}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" style={{ fontSize: "9px"}} />
+                            <XAxis dataKey="name" style={{ fontSize: "7px"}} />
                             <YAxis />
                             <Tooltip />
                                 {/* <Legend /> */}
-                            <Bar dataKey="value" barSize={20}>
+                            <Bar dataKey="value" barSize={15}>
                                 {
                                     data2.map((entry: any, index: any) => (
                                         <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
@@ -247,6 +243,7 @@ class StockDashboard extends React.Component<IProps, IState> {
             },
             {
                 title: 'DT thuan',
+                className: "dt-thuan-column",
                 render: (data: any) => {
                     const columns = get(data, 'financialReports.columns')
                     const rows = get(data, 'financialReports.rows')
@@ -263,13 +260,13 @@ class StockDashboard extends React.Component<IProps, IState> {
                         })
                     }
                     return (
-                        <BarChart width={300} height={100} data={data2}>
+                        <BarChart width={250} height={100} data={data2}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" style={{ fontSize: "9px"}} />
+                            <XAxis dataKey="name" style={{ fontSize: "7px"}} />
                             <YAxis />
                             <Tooltip />
                                 {/* <Legend /> */}
-                            <Bar dataKey="value" barSize={20}>
+                            <Bar dataKey="value" barSize={15}>
                             {
                                 data2.map((entry: any, index: any) => (
                                     <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
@@ -283,19 +280,9 @@ class StockDashboard extends React.Component<IProps, IState> {
             {
                 title: "News",
                 render: (data: any) => {
-                    const data2: any = [];
-                    
-                    for (let i=0; i < 7; i++) {
-                        const name = moment().add(-i, "days").format("MM-DD")
-                        const value = data.posts && data.posts.filter((i: any) => moment(i.date).format("MM-DD") === name).length
-                        data2.push({
-                            name,
-                            value
-                        })
-                    }
-                    return <div style={{ height: "120px", overflow: "auto", justifyContent: "space-between" }} className="flex">
+                    return <div style={{ height: "120px", overflow: "auto"}}>
                         <div>
-                            {data.posts && data.posts.map((i: any, index: any) => {
+                            {data.newsPosts && data.newsPosts.map((i: any, index: any) => {
                                 return <div 
                                 className="flex"
                                 style={{
@@ -310,14 +297,32 @@ class StockDashboard extends React.Component<IProps, IState> {
                                 </div>
                             })}
                         </div>
+                    </div>
+                }
+            },
+            {
+                title: "News",
+                className: "news-column",
+                render: (data: any) => {
+                    const data2: any = [];
+                    
+                    for (let i=0; i < 7; i++) {
+                        const name = moment().add(-i, "days").format("MM-DD")
+                        const value = data.newsPosts && data.newsPosts.filter((i: any) => moment(i.date).format("MM-DD") === name).length
+                        data2.push({
+                            name,
+                            value
+                        })
+                    }
+                    return <div style={{ height: "120px", overflow: "auto" }}>
                         <div>
-                            <BarChart width={400} height={100} data={data2}>
+                            <BarChart width={250} height={100} data={data2}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" style={{ fontSize: "9px"}} />
+                                <XAxis dataKey="name" style={{ fontSize: "7px"}} />
                                 <YAxis />
                                 <Tooltip />
                                 {/* <Legend /> */}
-                                <Bar dataKey="value" barSize={20}>
+                                <Bar dataKey="value" barSize={15}>
                                     {
                                         data2.map((entry: any, index: any) => (
                                             <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
@@ -329,7 +334,42 @@ class StockDashboard extends React.Component<IProps, IState> {
                         
                     </div>
                 }
-            }
+            },
+            {
+                title: "Community",
+                className: "community-column",
+                render: (data: any) => {
+                    const data2: any = [];
+                    
+                    for (let i=0; i < 7; i++) {
+                        const name = moment().add(-i, "days").format("MM-DD")
+                        const value = data.communityPosts && data.communityPosts.filter((i: any) => moment(i.date).format("MM-DD") === name).length
+                        data2.push({
+                            name,
+                            value
+                        })
+                    }
+                    return (
+                        <div>
+                            <BarChart width={250} height={100} data={data2}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" style={{ fontSize: "7px"}} />
+                                <YAxis />
+                                <Tooltip />
+                                {/* <Legend /> */}
+                                <Bar dataKey="value" barSize={15}>
+                                    {
+                                        data2.map((entry: any, index: any) => (
+                                            <Cell key={index} fill={entry.value > 0 ? 'green' : 'red'} />
+                                        ))
+                                    }
+                                </Bar>
+                            </BarChart>
+                        </div>   
+                    )
+                }
+            },
+
         ];
           
         return <Table 
@@ -360,7 +400,7 @@ class StockDashboard extends React.Component<IProps, IState> {
 
     handleClick = (data: any) => {
         if (data.key === "all") {
-            this.fetchAll()
+            // this.fetchAll()
         } else {
             const { listWatchlists } = this.state;
             const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
@@ -371,19 +411,21 @@ class StockDashboard extends React.Component<IProps, IState> {
                 }
             })
             this.setState({
-                listStock: newList
+                listStock: newList,
+                selectedWatchlist: data.key
             }, () => {
                 this.getFinancialIndicatorsAll(listSymbols)
                 this.getFinancialReportsAll(listSymbols)
-                this.getPostsAll(listSymbols)
-        
+                this.getNewsAll(listSymbols)
+                this.getCommunityAll(listSymbols)
+
             })
         }
     }
 
     render() {
-        const { symbolCreate, listWatchlists, modal, newsUrl } = this.state;
-
+        const { listWatchlists, modal, newsUrl, selectedWatchlist } = this.state;
+        const watchlistObj = keyBy(listWatchlists, 'watchlistID')
         const menu = <Menu onClick={this.handleClick}>
                 {
                     listWatchlists.map((i: any) => {
@@ -392,15 +434,12 @@ class StockDashboard extends React.Component<IProps, IState> {
                         </Menu.Item>
                     })
                 }     
-                <Menu.Item key="all">All</Menu.Item>          
+                {/* <Menu.Item key="all">All</Menu.Item>           */}
             </Menu>
         return <div>
-            <Input onChange={this.handleChangeInput} onPressEnter={() => this.create(symbolCreate)}/>
-            <Button disabled onClick={() => this.create(symbolCreate)}>Create</Button>
-            <Button disabled onClick={() => this.updateListStock()}>Update list stock</Button>
             <div>
             <Dropdown overlay={menu} trigger={['click']} >
-                <div>Click me</div>
+                <div>{selectedWatchlist ? watchlistObj[selectedWatchlist].name : 'Watchlist'}</div>
             </Dropdown>
             </div>
             {this.renderListStock()}
@@ -411,7 +450,6 @@ class StockDashboard extends React.Component<IProps, IState> {
 
 const mapDispatchToProps = {
     listStock,
-    createStock
 }
 
 export default connect(null,mapDispatchToProps)(StockDashboard);

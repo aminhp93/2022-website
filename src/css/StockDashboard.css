@@ -13,3 +13,12 @@
 .ant-table.ant-table-small tfoot > tr > td {
     padding: 0;
 }
+
+
+.lnst-column,
+.dt-thuan-column,
+.news-column,
+.community-column {
+    padding-top: 20px !important;
+}
+

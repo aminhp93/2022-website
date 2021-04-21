@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Table } from 'antd';
 import { keyBy } from 'lodash';
 import moment from 'moment';
+import axios from 'axios';
 
 import {
     postAuthToken,
@@ -13,7 +14,7 @@ import {
     fetchOrdersHistory
 } from '../reducers/account';
 import { formatNumber } from "../utils/common";
-
+import { render } from "react-dom";
 
 interface IProps {
     postAuthToken: any;
@@ -210,6 +211,9 @@ class Account extends React.Component<IProps, IState> {
             <div>
                 <Table pagination={false} size="small" dataSource={dataSource} columns={columns} />
                 {/* <Table pagination={false} size="small" dataSource={dataSource2} columns={columns} showHeader={false}/> */}
+                <VCBFAccount/>
+                <TPBankAccount/>
+                <TCBAccount />
             </div>
         )
     }
@@ -225,3 +229,78 @@ const mapDispatchToProps = {
 }
 
 export default connect(null,mapDispatchToProps)(Account);
+
+
+class VCBFAccount extends React.Component {
+    componentDidMount() {
+        // axios({
+        //     url: "https://trading.vcbf.com/fund/getSoDuCCQ",
+        //     method: "POST",
+        //     data: {
+        //         OBJNAME: "BALANCE",
+        //         custodycd: "979C002755",
+        //         keySearch: [],
+        //         language: "vie",
+        //         page: 1,
+        //         pagesize: 1,
+        //         sortSearch: []
+        //     },
+        //     headers: {
+        //         Cookie: "_gcl_au=1.1.613294862.1618883847; _ga=GA1.2.1968515218.1618883847; _fbp=fb.1.1618883847451.2003889446; _gcl_aw=GCL.1618989504.CjwKCAjwmv-DBhAMEiwA7xYrd63Jywmt6JW7wrNIoJCbp8MdmZWihjSBSqR52sXOWDBFtn1F5mTEKRoCV-kQAvD_BwE; _gid=GA1.2.1339681051.1618989504; _gac_UA-48131653-1=1.1618989504.CjwKCAjwmv-DBhAMEiwA7xYrd63Jywmt6JW7wrNIoJCbp8MdmZWihjSBSqR52sXOWDBFtn1F5mTEKRoCV-kQAvD_BwE; _gac_UA-44051993-1=1.1618989504.CjwKCAjwmv-DBhAMEiwA7xYrd63Jywmt6JW7wrNIoJCbp8MdmZWihjSBSqR52sXOWDBFtn1F5mTEKRoCV-kQAvD_BwE; __tawkuuid=e::vcbf.com::RlQKcn0PfvO/zU60z2U59g+mqAZgGTTbL1S28Pu/IgHiAmJUSvLoNj8YPVgu4C2l::2; sessionid=s%3AmT4ASYVyZHaUbSzHIj5cQ6QYYlvAuf-A.nwW36HOy%2BBt4Vv0FV7Bc2GEhRWlnQ5mmP1For6peJOQ; sails.sid=s%3AaT156JDRzMKjHq1TeaCoJT4FKEdF6Uq1.pFG3H4mq0nS3hL4xiJKSclL820L3C7ncOIdkUJb0bNc; io=fAo6e0AgbLz0GO97APHN"
+        //     }
+        // }).then(res => {
+        //     console.log(res)
+        // }).catch(e => {
+        //     console.log(e)
+        // })
+    }
+
+    render() {
+        return <div>VCBFAccount</div>
+    }
+}
+
+class TPBankAccount extends React.Component {
+    componentDidMount() {
+        axios({
+            url: "https://ebank.tpb.vn/gateway/api/common-presentation-service/v1/bank-accounts?function=home",
+            method: "GET",
+            headers: {
+                Authorization: "Bearer eyJraWQiOiJNYmV1VmVVWlhVT2FJcDgwYmx1XC9sanFOQjNKZE9aSDgxQ3JGU0tpMmVcL2M9IiwiY3R5IjoiSldUIiwiZW5jIjoiQTEyOENCQy1IUzI1NiIsImFsZyI6ImRpciJ9..OksPtD7G53uhHeztH_SrrQ.V5q54_KtSYdA9hPmqHwlfuqHTdmVNs927EaGkUpySVEMssHFNSMeEvMNIhWsH59h5Rln-FJGRb-5-S4rZkWFoa9N5e90fj9Gzktnop3mTxhXHsfdsGEt2xtO-6C8qqs2faHc-VnyYgAVqv1D6lXr1_LS5x-fNN6owjLtpol5Vnpr_JxDlaJWIM3Pkj1_hYWHwMDK-HThc3CSrx2oLY6Vc60J3zOQOOI5r5trUhOBW4cNp1H5LRTB-WIuoldmCbcA4hLjlwzb60QbWIcf0WX3w4a3xM5fhUnALuxt6cBmEwUSbsJjfYKJ8TFmMRWwc5AyZ6dGrNB1gfC6hZy3dhCY5IqAuaR2uM-pckRScKd0H1lpQ0OEnSfjhW--itPwKreFkhiZHxr8MvfA1s6Ere10HRlU4B4jxIlFPdnGyw5_6T-Anznibw33BdOl5nxSJliMhoCzK4bIvYkc9s-VfzCYTAPt5dm0dZFQvGCTI7lUBdKjrF51k8nfO9nD0z-ZTt7l.2xiTM0_XRRoxYsXizJmi_Q",
+                "Access-Control-Allow-Origin": "*"
+            }
+        }).then(res => {
+            console.log(res)
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    render() {
+        return <div>
+            TPBankAccount
+        </div>
+    }
+}
+
+class TCBAccount extends React.Component {
+    componentDidMount() {
+        // axios({
+        //     url: "https://ebank.tpb.vn/gateway/api/common-presentation-service/v1/bank-accounts?function=home",
+        //     method: "GET",
+        //     headers: {
+        //         Authorization: "Bearer eyJraWQiOiJNYmV1VmVVWlhVT2FJcDgwYmx1XC9sanFOQjNKZE9aSDgxQ3JGU0tpMmVcL2M9IiwiY3R5IjoiSldUIiwiZW5jIjoiQTEyOENCQy1IUzI1NiIsImFsZyI6ImRpciJ9..OksPtD7G53uhHeztH_SrrQ.V5q54_KtSYdA9hPmqHwlfuqHTdmVNs927EaGkUpySVEMssHFNSMeEvMNIhWsH59h5Rln-FJGRb-5-S4rZkWFoa9N5e90fj9Gzktnop3mTxhXHsfdsGEt2xtO-6C8qqs2faHc-VnyYgAVqv1D6lXr1_LS5x-fNN6owjLtpol5Vnpr_JxDlaJWIM3Pkj1_hYWHwMDK-HThc3CSrx2oLY6Vc60J3zOQOOI5r5trUhOBW4cNp1H5LRTB-WIuoldmCbcA4hLjlwzb60QbWIcf0WX3w4a3xM5fhUnALuxt6cBmEwUSbsJjfYKJ8TFmMRWwc5AyZ6dGrNB1gfC6hZy3dhCY5IqAuaR2uM-pckRScKd0H1lpQ0OEnSfjhW--itPwKreFkhiZHxr8MvfA1s6Ere10HRlU4B4jxIlFPdnGyw5_6T-Anznibw33BdOl5nxSJliMhoCzK4bIvYkc9s-VfzCYTAPt5dm0dZFQvGCTI7lUBdKjrF51k8nfO9nD0z-ZTt7l.2xiTM0_XRRoxYsXizJmi_Q"
+        //     }
+        // }).then(res => {
+        //     console.log(res)
+        // }).catch(e => {
+        //     console.log(e)
+        // })
+    }
+
+    render() {
+        return <div>
+            TCBAccount
+        </div>
+    }
+}
