@@ -4,7 +4,8 @@ import moment from 'moment';
 import { Table } from 'antd';
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-  
+import { formatNumber, DATE_FORMAT } from "../utils/common";
+
 interface IProps {
 
 }
@@ -243,8 +244,8 @@ class StockWatchlist extends React.Component<IProps, IState> {
         }
         startCount = -2
         endCount = -1
-        const startDate = moment().add(startCount, 'days').format('YYYY-MM-DD')
-        const endDate = moment().add(endCount, 'days').format('YYYY-MM-DD')
+        const startDate = moment().add(startCount, 'days').format(DATE_FORMAT)
+        const endDate = moment().add(endCount, 'days').format(DATE_FORMAT)
         
         return axios({
             method: "GET",

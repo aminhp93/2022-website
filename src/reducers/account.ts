@@ -63,3 +63,26 @@ export const fetchOrdersHistory = (token: string): ThunkActionType => async () =
     const res = await AccountService.fetchOrdersHistory(headers)
     return res
 }
+
+export const fetchCashStatement = (token: string): ThunkActionType => async () => {
+    const headers = {
+        'X-Auth-Token': token
+    }
+    let res: any;
+    let next = true
+    
+    let index = 0;
+    let result: any = []
+    while (next) {
+        res = await AccountService.fetchCashStatement(headers, index)
+        if (res && res.data) {
+            index += 1
+            if (res.data.transactions && res.data.transactions.length < 50) {
+                next = false
+            }
+            result = [...result, ...res.data.transactions]
+        }
+    }
+
+    return result
+}

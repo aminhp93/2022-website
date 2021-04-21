@@ -11,10 +11,11 @@ import {
     fetchAccountAssets,
     fetchAccountPortfolio,
     fetchAccountStocks,
-    fetchOrdersHistory
+    fetchOrdersHistory,
+    fetchCashStatement
 } from '../reducers/account';
-import { formatNumber } from "../utils/common";
-import { render } from "react-dom";
+import { formatNumber, DATE_FORMAT } from "../utils/common";
+import CashStatement from "./CashStatement";
 
 interface IProps {
     postAuthToken: any;
@@ -23,6 +24,7 @@ interface IProps {
     fetchAccountPortfolio: any;
     fetchAccountStocks: any;
     fetchOrdersHistory: any;
+    fetchCashStatement: any;
 }
 
 interface IState {
@@ -32,6 +34,7 @@ interface IState {
     accountStocksObj: any;
     columns: any;
     historyBuyList: any;
+    cashStatementList: any;
 }
 
 class Account extends React.Component<IProps, IState> {
@@ -43,6 +46,7 @@ class Account extends React.Component<IProps, IState> {
             accountPortfolioObj: {},
             accountStocksObj: [],
             historyBuyList: [],
+            cashStatementList: [],
             columns: [
                 {
                     title: 'symbol',
@@ -99,7 +103,7 @@ class Account extends React.Component<IProps, IState> {
                         const transactionDate = moment(data.transactionDate)
                         return data && data.transactionDate && (
                             <div>
-                                {today.diff(transactionDate, 'days')} days - {transactionDate.format("YYYY-MM-DD")}
+                                {today.diff(transactionDate, 'days')} days - {transactionDate.format(DATE_FORMAT)}
                             </div>
                         )
                     }
@@ -115,13 +119,16 @@ class Account extends React.Component<IProps, IState> {
         const res3 = await this.props.fetchAccountPortfolio(res.data.token)
         const res4 = await this.props.fetchAccountStocks(res.data.token)
         const res5 = await this.props.fetchOrdersHistory(res.data.token)
+        // const res6 = await this.props.fetchCashStatement(res.data.token)
+        // console.log(res6)
 
         this.setState({
             accountObj: res1.data.account,
             accountAssetsObj: res2.data,
             accountPortfolioObj: res3.data,
             accountStocksObj: res4.data.stocks,
-            historyBuyList: res5.data
+            historyBuyList: res5.data,
+            // cashStatementList: res6.data
             // .filter((i: any) => 
             // i.orsStatus === "Filled" && 
             // i.execType === "NB")
@@ -130,6 +137,7 @@ class Account extends React.Component<IProps, IState> {
 
     fetchCashStatement = () => {
         const url = "https://trade-report-api.vndirect.com.vn/accounts/0001069456/cashStatement?index=1&offset=50&types="
+
     }
 
     render() {
@@ -211,6 +219,7 @@ class Account extends React.Component<IProps, IState> {
             <div>
                 <Table pagination={false} size="small" dataSource={dataSource} columns={columns} />
                 {/* <Table pagination={false} size="small" dataSource={dataSource2} columns={columns} showHeader={false}/> */}
+                <CashStatement />
                 <VCBFAccount/>
                 <TPBankAccount/>
                 <TCBAccount />
@@ -225,7 +234,8 @@ const mapDispatchToProps = {
     fetchAccountAssets,
     fetchAccountPortfolio,
     fetchAccountStocks,
-    fetchOrdersHistory
+    fetchOrdersHistory,
+    fetchCashStatement
 }
 
 export default connect(null,mapDispatchToProps)(Account);
@@ -304,3 +314,4 @@ class TCBAccount extends React.Component {
         </div>
     }
 }
+

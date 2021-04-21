@@ -44,6 +44,13 @@ const AccountService = {
             url: AccountUrls.fetchOrdersHistory,
         });
     },
+    fetchCashStatement(headers: any, index: number) {
+        return request({
+            headers,
+            method: 'GET',
+            url: AccountUrls.fetchCashStatement(index),
+        });
+    },
 
 };
 

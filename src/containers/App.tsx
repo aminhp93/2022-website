@@ -10,10 +10,11 @@ import Test from "./Test";
 import Stock from "./Stock";
 import StockWatchlist from "./StockWatchlist";
 import Account from "./Account";
+import Tool from "./Tool";
 
 import "../css/App.css";
 import "../css/StockDashboard.css";
-import Tool from "./Tool";
+import "../css/CashStatement.css";
 
 function App() {
   return (

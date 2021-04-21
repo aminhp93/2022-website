@@ -20,6 +20,10 @@ code {
   display: flex;
 }
 
+.sp-bt {
+  justify-content: space-between;
+}
+
 .green {
   color: green;
 }

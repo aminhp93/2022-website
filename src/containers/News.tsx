@@ -4,6 +4,8 @@ import moment from "moment";
 import { Modal } from "antd";
 import ReactHtmlParser from 'react-html-parser';
 
+import { DATE_FORMAT } from "../utils/common";
+
 interface IProps {
     url: any;
     close: any;
@@ -51,7 +53,7 @@ class News extends React.Component<IProps, IState> {
         const { data } = this.state;
         const descriptionText = data && data.description
         const contentText = data && data.content && ReactHtmlParser(data.content)
-        const dateText = data && moment(data.date).format("YYYY-MM-DD")
+        const dateText = data && moment(data.date).format(DATE_FORMAT)
         return <Modal 
             title="Basic Modal" 
             visible={true} 
