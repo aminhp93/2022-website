@@ -82,7 +82,7 @@ class CashStatement extends React.Component<IProps, IState> {
             },
         ]
 
-        const dataSource = cashStatementList.filter((i: any) => !["8865", "8866", "8855", "8856", "8861", "2490", "1162", "0066", "1151", "1101"].includes(i.typeCode))
+        const dataSource = cashStatementList.filter((i: any) => !["8865", "8866", "8855", "8856", "8861", "2490", "1162", "0066", "1151", "1101", "3391", "1143"].includes(i.typeCode))
 
         const dataSource2 = cashStatementList.filter((i: any) => ["8865", "8866"].includes(i.typeCode))
         const dataSource2_total = (sumBy(dataSource2, "amount") / MILLION_UNIT).toFixed(2)
@@ -107,29 +107,85 @@ class CashStatement extends React.Component<IProps, IState> {
 
         const dataSource9 = cashStatementList.filter((i: any) => ["1101"].includes(i.typeCode))
         const dataSource9_total = (sumBy(dataSource9, "amount") / MILLION_UNIT).toFixed(2)
+
+        const dataSource10 = cashStatementList.filter((i: any) => ["3391"].includes(i.typeCode))
+        const dataSource10_total = (sumBy(dataSource10, "amount") / MILLION_UNIT).toFixed(2)
+
+        const dataSource11 = cashStatementList.filter((i: any) => ["1143"].includes(i.typeCode))
+        const dataSource11_total = (sumBy(dataSource11, "amount") / MILLION_UNIT).toFixed(2)
         
         const cash_in = Number(dataSource8_total) + Number(dataSource9_total)
         
         return <div>
             <Table pagination={false} size="small" dataSource={dataSource} columns={columns} />
-            <div className="flex sp-bt">Tra tien mua (8865), Nhan tien ban (8866) <div>{dataSource2_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource2 })}>Detail</div>
-            <div className="flex sp-bt">Tra phi lenh mua (8855), Tra phi lenh ban (8856) <div>{dataSource3_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource3 })}>Detail</div>
-            <div className="flex sp-bt">Tra ung truoc tien ban (8861) <div>{dataSource4_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource4 })}>Detail</div>
-            <div className="flex sp-bt">Tra phi luu ky (2490) <div>{dataSource5_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource5 })}>Detail</div>
-            <div className="flex sp-bt">Tien lai trong thang (1162) <div>{dataSource6_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource6 })}>Detail</div>
-            <div className="flex sp-bt">Trả thuế TNCC từ chuyển nhượng cổ phiếu theo ngày (0066) <div>{dataSource7_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource7 })}>Detail</div>
-            <div className="flex sp-bt">Chuyen khoan GL-CI (1151) <div>{dataSource8_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource8 })}>Detail</div>
-            <div className="flex sp-bt">Chuyen khoan CI den NH khac (1101) <div>{dataSource9_total}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource9 })}>Detail</div>
-            <div className="flex sp-bt">Cash in <div>{cash_in}</div></div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>Detail</div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource2 })}>
+                    Tra tien mua (8865), Nhan tien ban (8866) <div>{dataSource2_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource4 })}>
+                    Tra ung truoc tien ban (8861)<div>{dataSource4_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource8 })}>
+                    Chuyen khoan GL-CI (1151)<div>{dataSource8_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource9 })}>
+                    Chuyen khoan CI den NH khac (1101)<div>{dataSource9_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource11 })}>
+                    Ung truoc tien ban (1143)<div>{dataSource11_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }}>
+                    Cash in<div>{cash_in}</div>
+            </div>
+
+            <hr/>
+
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource3 })}>
+                    Tra phi lenh mua (8855), Tra phi lenh ban (8856)<div>{dataSource3_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource5 })}>
+                    Tra phi luu ky (2490)<div>{dataSource5_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource6 })}>
+                    Tien lai trong thang (1162)<div>{dataSource6_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource7 })}>
+                    Trả thuế TNCC từ chuyển nhượng cổ phiếu theo ngày (0066)<div>{dataSource7_total}</div>
+            </div>
+            <div 
+                className="flex sp-bt" 
+                style={{ marginBottom: "20px" }} 
+                onClick={() => this.setState({ modal: 'CashStatementModal', modalData: dataSource10 })}>
+                    Phan bo tien thuc hien quyen - co tuc (3391)<div>{dataSource10_total}</div>
+            </div>
 
             { modal === "CashStatementModal" && <CashStatementModal data={modalData} close={() => this.setState({ modal: null })}/>}
             
