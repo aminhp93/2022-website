@@ -11,6 +11,8 @@ import Stock from "./Stock";
 import StockWatchlist from "./StockWatchlist";
 import Account from "./Account";
 import Tool from "./Tool";
+import Buy from "./Buy";
+import Sell from "./Sell";
 
 import "../css/App.css";
 import "../css/StockDashboard.css";
@@ -25,6 +27,8 @@ function App() {
         <Route path="/tool" component={Tool} />
         <Route path="/test" component={Test} />
         <Route path="/account" component={Account} />
+        <Route path="/buy" component={Buy} />
+        <Route path="/sell" component={Sell} />
         <Route path="/" component={LinkList} />
       </Switch>
     </Router>
@@ -50,6 +54,12 @@ class LinkList extends React.Component {
       </li>
       <li>
         <Link to="/tool">Tool</Link>
+      </li>
+      <li>
+        <Link to="/buy">Buy</Link>
+      </li>
+      <li>
+        <Link to="/sell">Sell</Link>
       </li>
       
     </ul>

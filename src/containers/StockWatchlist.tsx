@@ -242,8 +242,8 @@ class StockWatchlist extends React.Component<IProps, IState> {
             startCount = -3
             endCount = 0
         }
-        startCount = -2
-        endCount = -1
+        // startCount = -5
+        // endCount = 0
         const startDate = moment().add(startCount, 'days').format(DATE_FORMAT)
         const endDate = moment().add(endCount, 'days').format(DATE_FORMAT)
         

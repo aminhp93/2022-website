@@ -220,9 +220,13 @@ class Account extends React.Component<IProps, IState> {
                 <Table pagination={false} size="small" dataSource={dataSource} columns={columns} />
                 {/* <Table pagination={false} size="small" dataSource={dataSource2} columns={columns} showHeader={false}/> */}
                 <CashStatement />
-                <VCBFAccount/>
-                <TPBankAccount/>
-                <TCBAccount />
+                {/* <VCBFAccount/> */}
+                {/* <TPBankAccount/> */}
+                {/* <TCBAccount /> */}
+                <div>{`VCBFAccount: 43,732,418 `}</div>
+                <div>{`TPBankAccount: 27,859,650`}</div>
+                <div>{`Tiet kiem: 37,000,000`}</div>
+                <div>{`Cash: 34,000,000`}</div>
             </div>
         )
     }
@@ -266,29 +270,29 @@ class VCBFAccount extends React.Component {
     }
 
     render() {
-        return <div>VCBFAccount</div>
+        return <div>{`VCBFAccount: 43,732,418 `}</div>
     }
 }
 
 class TPBankAccount extends React.Component {
     componentDidMount() {
-        axios({
-            url: "https://ebank.tpb.vn/gateway/api/common-presentation-service/v1/bank-accounts?function=home",
-            method: "GET",
-            headers: {
-                Authorization: "Bearer eyJraWQiOiJNYmV1VmVVWlhVT2FJcDgwYmx1XC9sanFOQjNKZE9aSDgxQ3JGU0tpMmVcL2M9IiwiY3R5IjoiSldUIiwiZW5jIjoiQTEyOENCQy1IUzI1NiIsImFsZyI6ImRpciJ9..OksPtD7G53uhHeztH_SrrQ.V5q54_KtSYdA9hPmqHwlfuqHTdmVNs927EaGkUpySVEMssHFNSMeEvMNIhWsH59h5Rln-FJGRb-5-S4rZkWFoa9N5e90fj9Gzktnop3mTxhXHsfdsGEt2xtO-6C8qqs2faHc-VnyYgAVqv1D6lXr1_LS5x-fNN6owjLtpol5Vnpr_JxDlaJWIM3Pkj1_hYWHwMDK-HThc3CSrx2oLY6Vc60J3zOQOOI5r5trUhOBW4cNp1H5LRTB-WIuoldmCbcA4hLjlwzb60QbWIcf0WX3w4a3xM5fhUnALuxt6cBmEwUSbsJjfYKJ8TFmMRWwc5AyZ6dGrNB1gfC6hZy3dhCY5IqAuaR2uM-pckRScKd0H1lpQ0OEnSfjhW--itPwKreFkhiZHxr8MvfA1s6Ere10HRlU4B4jxIlFPdnGyw5_6T-Anznibw33BdOl5nxSJliMhoCzK4bIvYkc9s-VfzCYTAPt5dm0dZFQvGCTI7lUBdKjrF51k8nfO9nD0z-ZTt7l.2xiTM0_XRRoxYsXizJmi_Q",
-                "Access-Control-Allow-Origin": "*"
-            }
-        }).then(res => {
-            console.log(res)
-        }).catch(e => {
-            console.log(e)
-        })
+        // axios({
+        //     url: "https://ebank.tpb.vn/gateway/api/common-presentation-service/v1/bank-accounts?function=home",
+        //     method: "GET",
+        //     headers: {
+        //         Authorization: "Bearer eyJraWQiOiJNYmV1VmVVWlhVT2FJcDgwYmx1XC9sanFOQjNKZE9aSDgxQ3JGU0tpMmVcL2M9IiwiY3R5IjoiSldUIiwiZW5jIjoiQTEyOENCQy1IUzI1NiIsImFsZyI6ImRpciJ9..OksPtD7G53uhHeztH_SrrQ.V5q54_KtSYdA9hPmqHwlfuqHTdmVNs927EaGkUpySVEMssHFNSMeEvMNIhWsH59h5Rln-FJGRb-5-S4rZkWFoa9N5e90fj9Gzktnop3mTxhXHsfdsGEt2xtO-6C8qqs2faHc-VnyYgAVqv1D6lXr1_LS5x-fNN6owjLtpol5Vnpr_JxDlaJWIM3Pkj1_hYWHwMDK-HThc3CSrx2oLY6Vc60J3zOQOOI5r5trUhOBW4cNp1H5LRTB-WIuoldmCbcA4hLjlwzb60QbWIcf0WX3w4a3xM5fhUnALuxt6cBmEwUSbsJjfYKJ8TFmMRWwc5AyZ6dGrNB1gfC6hZy3dhCY5IqAuaR2uM-pckRScKd0H1lpQ0OEnSfjhW--itPwKreFkhiZHxr8MvfA1s6Ere10HRlU4B4jxIlFPdnGyw5_6T-Anznibw33BdOl5nxSJliMhoCzK4bIvYkc9s-VfzCYTAPt5dm0dZFQvGCTI7lUBdKjrF51k8nfO9nD0z-ZTt7l.2xiTM0_XRRoxYsXizJmi_Q",
+        //         "Access-Control-Allow-Origin": "*"
+        //     }
+        // }).then(res => {
+        //     console.log(res)
+        // }).catch(e => {
+        //     console.log(e)
+        // })
     }
 
     render() {
         return <div>
-            TPBankAccount
+            TPBankAccount: {`27,859,650`}
         </div>
     }
 }
