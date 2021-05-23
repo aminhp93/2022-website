@@ -2,13 +2,13 @@ import React from "react";
 import { connect } from "react-redux";
 import { Table, Menu, Dropdown } from "antd";
 import axios from "axios";
-import { keyBy, get } from "lodash";
+import { keyBy, get, groupBy } from "lodash";
 import moment from "moment";
 
 import {
     listStock,
 } from '../reducers/stock';
-import { formatNumber, BILLION_UNIT } from "../utils/common";
+import { formatNumber, BILLION_UNIT, LIST_INDUSTRY } from "../utils/common";
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import News from "./News";
@@ -24,6 +24,7 @@ interface IState {
     modal: string;
     newsUrl: string;
     selectedWatchlist: string;
+    selectedIndustry: string;
 }
 
 class StockDashboard extends React.Component<IProps, IState> {
@@ -34,27 +35,13 @@ class StockDashboard extends React.Component<IProps, IState> {
             listWatchlists: [],
             modal: "",
             newsUrl: "",
-            selectedWatchlist: null
+            selectedWatchlist: null,
+            selectedIndustry: null
         }
     }
 
-    async componentDidMount() {
-        this.getWatchlist()
-    }
-
-    fetchAll = async () => {
-        const res = await this.props.listStock();
-        if (res && res.data) {
-            this.setState({
-                listStock: res.data
-            }, () => {
-                const listSymbols = res.data.map((i: any) => i.symbol)
-
-                this.getFinancialIndicatorsAll(listSymbols)
-                this.getFinancialReportsAll(listSymbols)
-            })
-            
-        }
+    componentDidMount() {
+        this.getWatchlist()    
     }
 
     getFinancialIndicatorsAll = (listSymbols: any) => {
@@ -84,6 +71,40 @@ class StockDashboard extends React.Component<IProps, IState> {
             const mappedRes: any = keyBy(res, 'symbol');
             const newStockList = this.state.listStock.map((i: any) => {
                 i.financialReports = mappedRes[i.symbol].financialReports
+                return i
+            })
+            this.setState({
+                listStock: newStockList
+            })
+        })
+    }
+
+    getProfileAll = (listSymbols: any) => {
+        const listPromises: any = [];
+        listSymbols.map((j: any) => {
+            listPromises.push(this.getProfile(j))
+        })
+        Promise.all(listPromises).then(res => {
+            const mappedRes: any = keyBy(res, 'symbol');
+            const newStockList = this.state.listStock.map((i: any) => {
+                i.profile = mappedRes[i.symbol].profile
+                return i
+            })
+            this.setState({
+                listStock: newStockList
+            })
+        })
+    }
+
+    getFundamentalAll = (listSymbols: any) => {
+        const listPromises: any = [];
+        listSymbols.map((j: any) => {
+            listPromises.push(this.getFundamental(j))
+        })
+        Promise.all(listPromises).then(res => {
+            const mappedRes: any = keyBy(res, 'symbol');
+            const newStockList = this.state.listStock.map((i: any) => {
+                i.fundamental = mappedRes[i.symbol].fundamental
                 return i
             })
             this.setState({
@@ -177,11 +198,78 @@ class StockDashboard extends React.Component<IProps, IState> {
         })
     }
 
+    getProfile = (symbol: string) => {
+        if (!symbol) return;
+        return axios({
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
+            },
+            url: `https://restv2.fireant.vn/symbols/${symbol}/profile`
+        }).then((res: any) => {
+
+            const profile = res.data
+            return { symbol, profile }
+        }).catch((e: any) => {
+            console.log(e)
+        })
+    }
+
+    getFundamental = (symbol: string) => {
+        if (!symbol) return;
+        return axios({
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
+            },
+            url: `https://restv2.fireant.vn/symbols/${symbol}/fundamental`
+        }).then((res: any) => {
+
+            const fundamental = res.data
+            fundamental.symbol = symbol
+            return { symbol, fundamental }
+        }).catch((e: any) => {
+            console.log(e)
+        })
+    }
+
+    handleSelectIndustry = (data: any) => {
+        console.log(data)
+        if (data && data.activeLabel) {
+            this.setState({ 
+                selectedIndustry: data.activeLabel
+            })
+        }
+    }
+
     renderListStock = () => {
-        const { listStock } = this.state;
-        const dataSource = listStock
+        const { listStock, selectedWatchlist, selectedIndustry } = this.state;
+        console.log(this.state)
+        let dataSource = listStock
+        if (selectedWatchlist === '365074' && selectedIndustry) {
+            dataSource = listStock.filter((i: any) => get(i, "profile.icbCode") === selectedIndustry)
+        } else {
+            dataSource = listStock
+        }
           
         const columns = [
+            {
+                title: 'Industry',
+                sorter: (a: any, b: any) => get(a, 'profile.icbCode') - get(b, 'profile.icbCode'),
+                render: (data: any) => {
+                    const list = keyBy(JSON.parse(LIST_INDUSTRY), "IndustryCode")
+                    const icbCode = get(data, 'profile.icbCode')
+                    return `${icbCode} - ${(list[icbCode] || {}).Name}`
+                }
+            },
+            {
+                title: 'Capital',
+                sorter: (a: any, b: any) => get(a, 'fundamental.marketCap') - get(b, 'fundamental.marketCap'),
+                render: (data: any) => {
+                    const marketCap = get(data, 'fundamental.marketCap')
+                    return (marketCap / BILLION_UNIT).toFixed(0)
+                }
+            },
             {
                 title: 'symbol',
                 sorter: (a: any, b: any) => a.symbol.localeCompare(b.symbol),
@@ -189,6 +277,7 @@ class StockDashboard extends React.Component<IProps, IState> {
                     return data.symbol
                 }
             },
+            
             {
                 title: 'ROE',
                 sorter: (a: any, b: any) => a.ROE - b.ROE,
@@ -371,12 +460,41 @@ class StockDashboard extends React.Component<IProps, IState> {
             },
 
         ];
+
+        console.log(dataSource)
+        const profile = groupBy(listStock, "profile.icbCode")
+        console.log(profile)
+        const dataBarChart: any = []
+        Object.keys(profile).map((i: any) => {
+            const item: any = {}
+            item.icbCode = i;
+            item.count = profile[i].length
+            item.listSymbols = profile[i]
+            dataBarChart.push(item)
+        })
+        return <>
+            {
+                // selectedWatchlist === '365074' &&
+                 <BarChart width={730} height={250} data={dataBarChart} onClick={this.handleSelectIndustry}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="icbCode" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count" fill="#8884d8" />
+                </BarChart>
+            }
           
-        return <Table 
-            className="StockDashboard-table"
-            dataSource={dataSource}
-            columns={columns}
-            pagination={false}/>;
+            {
+                (selectedWatchlist !== '365074' || (selectedWatchlist === '365074' && selectedIndustry)) &&
+                <Table 
+                    className="StockDashboard-table"
+                    dataSource={dataSource}
+                    columns={columns}
+                    pagination={false}/>
+            }
+          
+        </>
           
     }
 
@@ -399,9 +517,7 @@ class StockDashboard extends React.Component<IProps, IState> {
     }
 
     handleClick = (data: any) => {
-        if (data.key === "all") {
-            // this.fetchAll()
-        } else {
+     
             const { listWatchlists } = this.state;
             const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
             const listSymbols = listWatchlistsObj[Number(data.key)].symbols
@@ -416,11 +532,13 @@ class StockDashboard extends React.Component<IProps, IState> {
             }, () => {
                 this.getFinancialIndicatorsAll(listSymbols)
                 this.getFinancialReportsAll(listSymbols)
-                this.getNewsAll(listSymbols)
-                this.getCommunityAll(listSymbols)
+                // this.getNewsAll(listSymbols)
+                // this.getCommunityAll(listSymbols)
+                this.getProfileAll(listSymbols)
+                this.getFundamentalAll(listSymbols)
 
             })
-        }
+        
     }
 
     render() {
@@ -434,7 +552,6 @@ class StockDashboard extends React.Component<IProps, IState> {
                         </Menu.Item>
                     })
                 }     
-                {/* <Menu.Item key="all">All</Menu.Item>           */}
             </Menu>
         return <div>
             <div>
