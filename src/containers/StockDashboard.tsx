@@ -475,13 +475,13 @@ class StockDashboard extends React.Component<IProps, IState> {
         return <>
             {
                 // selectedWatchlist === '365074' &&
-                 <BarChart width={730} height={250} data={dataBarChart} onClick={this.handleSelectIndustry}>
+                 <BarChart width={1200} height={250} data={dataBarChart} onClick={this.handleSelectIndustry}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="icbCode" />
+                    <XAxis dataKey="icbCode" style={{ fontSize: "8px"}}/>
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="count" fill="#8884d8" />
+                    <Bar dataKey="count" fill="#8884d8" barSize={16} />
                 </BarChart>
             }
           

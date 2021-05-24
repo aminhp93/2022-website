@@ -11,42 +11,15 @@ interface IProps {
 }
 
 interface IState {
-    da_mua: any;
-    nganh_ck: any;
-    nganh_BDS_XD: any;
-    vn30: any;
-    nganh_phan_bon: any;
-    nganh_thep: any;
-    nganh_dau_khi: any;
-    nganh_ngan_hang: any;
-    watching: any;
-    aim_to_buy: any;
+    listData: any;
 }
-
-
-const config = {
-    apiKey: "AIzaSyAcOZycmQvqEzAOm-SpZ6McUfQBmMtMKLc",
-    discoveryDocs: 
-      ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-    spreadsheetId: "1vZAJq9UXfTYDButjnEJ9eGHi3L-ocwJ0w4Pu9IbbQ-Y"
-  };
-  
 
 const TIMEOUT_TIME = 1000 * 60
 class StockWatchlist extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            nganh_ck: [],
-            da_mua: [],
-            nganh_BDS_XD: [],
-            vn30: [],
-            nganh_phan_bon: [],
-            nganh_thep: [],
-            nganh_dau_khi: [],
-            nganh_ngan_hang: [],
-            watching: [],
-            aim_to_buy: []
+            listData: []
         }
     }
     componentDidMount() {
@@ -54,58 +27,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
         setInterval(() => {
             this.getWatchlist()
         }, TIMEOUT_TIME)
-        this.getStockDrive();
     }
-
-    getStockDrive = () => {
-        (window as any).gapi.load("client", this.initClient);
-    }
-
-    initClient = () => {
-        (window as any).gapi.client
-            .init({
-                apiKey: config.apiKey,
-                // Your API key will be automatically added to the Discovery Document URLs.
-                discoveryDocs: config.discoveryDocs
-            })
-            .then(() => {
-                // 3. Initialize and make the API request.
-                this.load(this.onLoad);
-            });
-    }
-
-    load = (callback: any) => {
-        (window as any).gapi.client.load("sheets", "v4", () => {
-            (window as any).gapi.client.sheets.spreadsheets.values
-              .get({
-                spreadsheetId: config.spreadsheetId,
-                range: "Sheet1!A4:T"
-              })
-              .then((response: any) => {
-                  const data = response.result.values;
-                  const cars = data.map((car: any) => ({
-                    year: car[0],
-                    make: car[1],
-                    model: car[2]
-                  })) || [];
-                  callback({
-                    cars
-                  });
-                }, (response: any) => {
-                  callback(false, response.result.error);
-                }
-              );
-          });
-    }
-
-    onLoad = (data: any, error: any) => {
-        if (data) {
-          const cars = data.cars;
-        //   this.setState({ cars });
-        } else {
-        //   this.setState({ error });
-        }
-      };
 
     getWatchlist = () => {
         axios({
@@ -116,110 +38,27 @@ class StockWatchlist extends React.Component<IProps, IState> {
             }
         }).then(res => {
             if (res.data) {
-               
+                const listData: any = []
                 res.data.map((i: any) => {
-                    if (i.name === 'da_mua') {
+                    if (i.name !== 'thanh_khoan_lon') {
                         const listPromises: any = [];
                         i.symbols.map((j: any) => {
                             listPromises.push(this.getPriceStock(j))
                         })
+                        
                         Promise.all(listPromises).then((j: any) => {
+                            
+                            const item: any = {}
+                            item.name = i.name
+                            item.watchlistID = i.watchlistID
+                            item.value = j.sort((a: any, b: any) => b.percentChange - a.percentChange) 
+                            listData.push(item)
+                            
                             this.setState({
-                                da_mua: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_ck') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_ck: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_BDS_XD') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_BDS_XD: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'vn30') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                vn30: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_phan_bon') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_phan_bon: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_thep') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_thep: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_dau_khi') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_dau_khi: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'nganh_ngan_hang') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                nganh_ngan_hang: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'watching') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                watching: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
-                            })
-                        })
-                    } else if (i.name === 'aim_to_buy') {
-                        const listPromises: any = [];
-                        i.symbols.map((j: any) => {
-                            listPromises.push(this.getPriceStock(j))
-                        })
-                        Promise.all(listPromises).then((j: any) => {
-                            this.setState({
-                                aim_to_buy: j.sort((a: any, b: any) => b.percentChange - a.percentChange)
+                                listData
                             })
                         })
                     }
-                    
                 })
             }
             
@@ -264,12 +103,9 @@ class StockWatchlist extends React.Component<IProps, IState> {
 
     render() {
         const { 
-            da_mua, nganh_ck, nganh_BDS_XD,
-            vn30, nganh_phan_bon, nganh_thep,
-            nganh_dau_khi, nganh_ngan_hang, watching,
-            aim_to_buy
+            listData
         } = this.state;
-
+        console.log(listData)
           
         const columns = [
             {
@@ -289,80 +125,48 @@ class StockWatchlist extends React.Component<IProps, IState> {
                 return <span className={className}>{data}</span>
               }
             },
-        ];  
+        ];
         
-        return <div className="flex" style={{ position: "relative", height: "100%" }}>
-                <div>
-                    <div className="flex">
-                        <div style={{ width: "160px" }}>da_mua</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={da_mua} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    
+        const columns2 = [
+            {
+              title: 'percentChange',
+              dataIndex: 'percentChange',
+              key: 'percentChange',
+              render: (data: any) => {
+                let className = 'red';
+                if (data > 0) {
+                    className = 'green'
+                }
+                return <span className={className}>{data}</span>
+              }
+            },
+        ];
+        
+        return <div style={{  height: "100%" }}>
+                <div style={{ height: "50%", overflow: "auto" }} className="flex">
+                    {
+                        listData.filter((i: any) => ['da_mua', 'watching', 'aim_to_buy', 'vn30'].includes(i.name) && i.value && i.value.length > 0).map((i: any, index: number) => {
+                            return <div style={{ borderTop: '1px solid black', marginRight: "10px" }}>
+                                <div style={{  }}>{i.name}</div>
+                                <div>
+                                    <Table pagination={false} size="small" dataSource={i.value} columns={columns} showHeader={false}/>
+                                </div>
+                            </div>
+                        })
+                    }
                 </div>
-                <div>
-                     <div className="flex" style={{ borderLeft: '1px solid black', borderRight: '1px solid black' }}>
-                        <div style={{ width: "100px" }}>vn30</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={vn30} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                     <div className="flex">
-                        <div style={{ width: "100px" }}>watching</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={watching} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                     <div className="flex">
-                        <div style={{ width: "100px" }}>aim_to_buy</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={aim_to_buy} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                </div>
-                <div style={{ position: "absolute", bottom: 0}} className="flex">
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_ck</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_ck} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_BDS_XD</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_BDS_XD} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_phan_bon</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_phan_bon} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_thep</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_thep} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_dau_khi</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_dau_khi} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid black', marginRight: "50px" }}>
-                        <div style={{ width: "160px" }}>nganh_ngan_hang</div>
-                        <div>
-                            <Table pagination={false} size="small" dataSource={nganh_ngan_hang} columns={columns} showHeader={false}/>
-                        </div>
-                    </div>
-
+             
+                <div style={{ height: "50%", overflow: "auto"}} className="flex">
+                    {
+                        listData.filter((i: any) => !['da_mua', 'watching', 'aim_to_buy', 'vn30'].includes(i.name) && i.value && i.value.length > 0).map((i: any, index: number) => {
+                            return <div style={{ borderTop: '1px solid black', marginRight: "20px" }}>
+                                <div style={{  }}>{index}</div>
+                                <div>
+                                    <Table pagination={false} size="small" dataSource={i.value} columns={columns2} showHeader={false}/>
+                                </div>
+                            </div>
+                        })
+                    }
                 </div>
         </div>
     }
