@@ -1,10 +1,11 @@
 import React from 'react';
 import axios from 'axios';
 import moment from 'moment';
-import { Table } from 'antd';
+import { Table, Tooltip, Button } from 'antd';
 
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { formatNumber, DATE_FORMAT } from "../utils/common";
+import { get } from 'lodash';
 
 interface IProps {
 
@@ -12,6 +13,7 @@ interface IProps {
 
 interface IState {
     listData: any;
+    showAll: boolean;
 }
 
 const TIMEOUT_TIME = 1000 * 60
@@ -19,7 +21,8 @@ class StockWatchlist extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            listData: []
+            listData: [],
+            showAll: false,
         }
     }
     componentDidMount() {
@@ -102,10 +105,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
     }
 
     render() {
-        const { 
-            listData
-        } = this.state;
-        console.log(listData)
+        const { listData, showAll } = this.state;
           
         const columns = [
             {
@@ -130,14 +130,18 @@ class StockWatchlist extends React.Component<IProps, IState> {
         const columns2 = [
             {
               title: 'percentChange',
-              dataIndex: 'percentChange',
-              key: 'percentChange',
               render: (data: any) => {
+                  console.log(data)
                 let className = 'red';
-                if (data > 0) {
+                const percentChange = get(data, 'percentChange')
+                if (percentChange > 0) {
                     className = 'green'
                 }
-                return <span className={className}>{data}</span>
+                
+                return <Tooltip title={data.symbol}>
+                    <span className={className}>{percentChange}</span>
+                </Tooltip>
+                
               }
             },
         ];
@@ -157,12 +161,20 @@ class StockWatchlist extends React.Component<IProps, IState> {
                 </div>
              
                 <div style={{ height: "50%", overflow: "auto"}} className="flex">
+                    <Button onClick={() => this.setState({ showAll: !showAll})}>
+                        {showAll ? 'Hide' : 'Show'}
+                    </Button>
                     {
                         listData.filter((i: any) => !['da_mua', 'watching', 'aim_to_buy', 'vn30'].includes(i.name) && i.value && i.value.length > 0).map((i: any, index: number) => {
+                            const dataSource2 = showAll ? i.value : i.value.filter((j: any) => j.percentChange > 0)
+                            if (!dataSource2 || (dataSource2 && dataSource2.length === 0)) return null
                             return <div style={{ borderTop: '1px solid black', marginRight: "20px" }}>
-                                <div style={{  }}>{index}</div>
+                                <Tooltip title={i.name}>
+                                    <div style={{  }}>{index}</div>
+                                </Tooltip>
+                                
                                 <div>
-                                    <Table pagination={false} size="small" dataSource={i.value} columns={columns2} showHeader={false}/>
+                                    <Table pagination={false} size="small" dataSource={dataSource2} columns={columns2} showHeader={false}/>
                                 </div>
                             </div>
                         })
