@@ -22,7 +22,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
         super(props);
         this.state = {
             listData: [],
-            showAll: false,
+            showAll: true,
         }
     }
     componentDidMount() {
