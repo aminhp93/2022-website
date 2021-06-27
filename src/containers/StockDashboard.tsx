@@ -532,8 +532,8 @@ class StockDashboard extends React.Component<IProps, IState> {
             }, () => {
                 this.getFinancialIndicatorsAll(listSymbols)
                 this.getFinancialReportsAll(listSymbols)
-                // this.getNewsAll(listSymbols)
-                // this.getCommunityAll(listSymbols)
+                this.getNewsAll(listSymbols)
+                this.getCommunityAll(listSymbols)
                 this.getProfileAll(listSymbols)
                 this.getFundamentalAll(listSymbols)
 
