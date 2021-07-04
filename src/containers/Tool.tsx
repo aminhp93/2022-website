@@ -77,7 +77,7 @@ class Tool extends React.Component<IProps, IState> {
     render() {
         return <div>
             <Button onClick={() => this.update(LIST_THANH_KHOAN_LON, 365074, "thanh_khoan_lon")}>Update list thanh_khoan_lon</Button>
-            <Button danger onClick={() => this.update(LIST_THANH_KHOAN_LON, 365074, "thanh_khoan_lon")}>Clear</Button>
+            <Button danger onClick={() => this.update("", 365074, "thanh_khoan_lon")}>Clear</Button>
             <Button onClick={() => this.updateLocal()}>Update to local db</Button>
             <hr/>
             <Button onClick={() => this.update(LIST_AIM_TO_BUY, 396060, "aim_to_buy")}>Update list aim_to_buy</Button>
@@ -86,6 +86,28 @@ class Tool extends React.Component<IProps, IState> {
             <Button onClick={() => this.update(LIST_WATCHING, 75482, "watching")}>Update list watching</Button>
             <Button danger onClick={() => this.update("", 75482, "watching")}>Clear</Button>
             <hr/>
+            <div>
+                <div>
+                    Loc co ban hang thang
+                </div>
+                <div>
+                    {`Step 1: Loc Realtime tren Fireant: https://fireant.vn/top-symbols`}
+                    <div>{`- Niem yet tren HSX, HNX, UPCOM`}</div>
+                    <div>{`- Thi gia von > 1000`}</div>
+                    <div>{`- KLTB 20 phien > 100000`}</div>
+                    <div>{`- Gia hien tai > 5`}</div>
+                </div>
+                <div>
+                    {`Step2: Loc them KLGD > 10ty/phien`}
+                    <div>{`- Ra duoc list thanh_khoan_lon va daily`}</div>
+                    <div>{`- Update list thanh_khoan_lon vao ami`}</div>
+                </div>
+                <div>
+                    {`Step3: Loc chart xau --> daily`}
+                    <div>{`Vao Ami xoa chart xau`}</div>
+                    <div>{`Vao tool xoa BCTC hoac chi co co ban xau`}</div>
+                </div>
+            </div>
         </div>
     }
 }

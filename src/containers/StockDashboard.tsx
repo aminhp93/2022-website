@@ -1,14 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Table, Menu, Dropdown } from "antd";
+import { Table, Menu, Dropdown, Button } from "antd";
 import axios from "axios";
-import { keyBy, get, groupBy } from "lodash";
+import { keyBy, get, groupBy, meanBy } from "lodash";
 import moment from "moment";
 
 import {
     listStock,
 } from '../reducers/stock';
-import { formatNumber, BILLION_UNIT, LIST_INDUSTRY } from "../utils/common";
+import { formatNumber, BILLION_UNIT, LIST_INDUSTRY, DATE_FORMAT } from "../utils/common";
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import News from "./News";
@@ -110,6 +110,47 @@ class StockDashboard extends React.Component<IProps, IState> {
             this.setState({
                 listStock: newStockList
             })
+        })
+    }
+
+    getPriceStockAll = (listSymbols: any) => {
+        const listPromises: any = [];
+        listSymbols.map((j: any) => {
+            listPromises.push(this.getPriceStock(j))
+        })
+        Promise.all(listPromises).then(res => {
+            const mappedRes: any = keyBy(res, 'symbol');
+            const newStockList = this.state.listStock.map((i: any) => {
+                i.priceStock = mappedRes[i.symbol].priceStock
+                return i
+            })
+            this.setState({
+                listStock: newStockList
+            })
+        })
+    }
+
+    getPriceStock = (symbol: string) => {
+        if (!symbol) return;
+
+        const startCount = -1000;
+        const endCount = 0;
+
+        const startDate = moment().add(startCount, 'days').format(DATE_FORMAT)
+        const endDate = moment().add(endCount, 'days').format(DATE_FORMAT)
+        
+        return axios({
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNjIzMDMyLCJuYmYiOjE2MTM2MjMwMzIsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM2MjMwMzIsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiZmIyZWJkNzAzNTBiMDBjMGJhMWE5ZDA5NGUwNDMxMjYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.OhgGCRCsL8HVXSueC31wVLUhwWWPkOu-yKTZkt3jhdrK3MMA1yJroj0Y73odY9XSLZ3dA4hUTierF0LxcHgQ-pf3UXR5KYU8E7ieThAXnIPibWR8ESFtB0X3l8XYyWSYZNoqoUiV9NGgvG2yg0tQ7lvjM8UYbiI-3vUfWFsMX7XU3TQnhxW8jYS_bEXEz7Fvd_wQbjmnUhQZuIVJmyO0tFd7TGaVipqDbRdry3iJRDKETIAMNIQx9miHLHGvEqVD5BsadOP4l8M8zgVX_SEZJuYq6zWOtVhlq3uink7VvnbZ7tFahZ4Ty4z8ev5QbUU846OZPQyMlEnu_TpQNpI1hg"
+            },
+            url: `https://restv2.fireant.vn/symbols/${symbol}/historical-quotes?startDate=${startDate}&endDate=${endDate}&offset=0&limit=20`,
+        }).then((res: any) => {
+            let priceStock: any = {}
+            priceStock = res.data
+            return { symbol, priceStock }
+        }).catch((e: any) => {
+            console.log(e)
         })
     }
 
@@ -234,7 +275,6 @@ class StockDashboard extends React.Component<IProps, IState> {
     }
 
     handleSelectIndustry = (data: any) => {
-        console.log(data)
         if (data && data.activeLabel) {
             this.setState({ 
                 selectedIndustry: data.activeLabel
@@ -242,9 +282,40 @@ class StockDashboard extends React.Component<IProps, IState> {
         }
     }
 
+    handleFilter = (data: any) => {
+        const { listStock } = this.state;
+        
+        const filter = listStock.filter((i: any) => {
+            const a = Number((meanBy(i.priceStock, 'totalValue') / BILLION_UNIT).toFixed(0))
+            return a > 10 && i.symbol !== "E1VFVN30" && i.symbol !== "FUEVFVND"
+        })
+        
+        const new_LIST_THANH_KHOAN_LON = filter.map((i: any) => i.symbol).join("")
+    
+        this.update(new_LIST_THANH_KHOAN_LON, 365074, "thanh_khoan_lon")
+        this.update(new_LIST_THANH_KHOAN_LON, 610073, "daily")
+    }
+
+
+    update = (str: string, id: number, name: string) => {
+        const symbols = str.match(/.{1,3}/g)
+        axios({
+            method: "PUT",
+            url: `https://restv2.fireant.vn/me/watchlists/${id}`,
+            headers: {
+                "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoxOTEzNzE1ODY4LCJuYmYiOjE2MTM3MTU4NjgsImNsaWVudF9pZCI6ImZpcmVhbnQudHJhZGVzdGF0aW9uIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIxZmI5NjI3Yy1lZDZjLTQwNGUtYjE2NS0xZjgzZTkwM2M1MmQiLCJhdXRoX3RpbWUiOjE2MTM3MTU4NjcsImlkcCI6IkZhY2Vib29rIiwibmFtZSI6Im1pbmhwbi5vcmcuZWMxQGdtYWlsLmNvbSIsInNlY3VyaXR5X3N0YW1wIjoiODIzMzcwOGUtYjFjOS00ZmQ3LTkwYmYtMzI2NTYzYmU4N2JkIiwianRpIjoiYzZmNmNkZWE2MTcxY2Q5NGRiNWZmOWZkNDIzOWM0OTYiLCJhbXIiOlsiZXh0ZXJuYWwiXX0.oZ8S_sTP6qVRJqY4h7g0JvXVPB0k8tm4go9pUFD0sS_sDZbC6zjelAVVNGHWJja82ewJbUEmTJrnDWAKR-rg5Pprp4DW7MzaN0lw3Bw0wEacphtyglx-H14-0Wnv_-2KMyQLP5EYH8wgyiw9I3ig_i7kHJy-XgCd__tdoMKvarkIXPzJJJY32gq-LScWb3HyZsfEdi-DEZUUzjAHR1nguY8oNmCiA6FaQCzOBU_qfgmOLWhN9ZNN1G3ODAeoOnphLJuWjHIrwPuVXy6B39eU2PtHmujtw_YOXdIWEi0lRhqV1pZOrJEarQqjdV3K5XNwpGvONT8lvUwUYGoOwwBFJg"
+            },
+            data: {
+                name,
+                symbols: symbols || [],
+                userName: "minhpn.org.ec1@gmail.com",
+                watchlistID: id,
+            }
+        })
+    }
+
     renderListStock = () => {
         const { listStock, selectedWatchlist, selectedIndustry } = this.state;
-        console.log(this.state)
         let dataSource = listStock
         if (selectedWatchlist === '365074' && selectedIndustry) {
             dataSource = listStock.filter((i: any) => get(i, "profile.icbCode") === selectedIndustry)
@@ -262,6 +333,7 @@ class StockDashboard extends React.Component<IProps, IState> {
                     return `${icbCode} - ${(list[icbCode] || {}).Name}`
                 }
             },
+           
             {
                 title: 'Capital',
                 sorter: (a: any, b: any) => get(a, 'fundamental.marketCap') - get(b, 'fundamental.marketCap'),
@@ -461,9 +533,32 @@ class StockDashboard extends React.Component<IProps, IState> {
 
         ];
 
-        console.log(dataSource)
+        const columns_2 = [
+            {
+                title: 'symbol',
+                sorter: (a: any, b: any) => a.symbol.localeCompare(b.symbol),
+                render: (data: any) => {
+                    return data.symbol
+                }
+            },
+            {
+                title: 'totalValue_TB20',
+                sorter: (a: any, b: any) => {
+                    const priceStock_a = get(a, 'priceStock')
+                    const totalValue_TB20_a = Number((meanBy(priceStock_a, 'totalValue') / BILLION_UNIT).toFixed(0))
+                    const priceStock_b = get(b, 'priceStock')
+                    const totalValue_TB20_b = Number((meanBy(priceStock_b, 'totalValue') / BILLION_UNIT).toFixed(0))
+                    return  totalValue_TB20_a - totalValue_TB20_b
+                },
+                render: (data: any) => {
+                    const priceStock = get(data, 'priceStock')
+                    const totalValue_TB20 = Number((meanBy(priceStock, 'totalValue') / BILLION_UNIT).toFixed(0))
+                    return totalValue_TB20 
+                }
+            },
+        ]
+
         const profile = groupBy(listStock, "profile.icbCode")
-        console.log(profile)
         const dataBarChart: any = []
         Object.keys(profile).map((i: any) => {
             const item: any = {}
@@ -472,29 +567,44 @@ class StockDashboard extends React.Component<IProps, IState> {
             item.listSymbols = profile[i]
             dataBarChart.push(item)
         })
-        return <>
-            {
-                // selectedWatchlist === '365074' &&
-                 <BarChart width={1200} height={250} data={dataBarChart} onClick={this.handleSelectIndustry}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="icbCode" style={{ fontSize: "8px"}}/>
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="count" fill="#8884d8" barSize={16} />
-                </BarChart>
-            }
-          
-            {
-                (selectedWatchlist !== '365074' || (selectedWatchlist === '365074' && selectedIndustry)) &&
-                <Table 
-                    className="StockDashboard-table"
-                    dataSource={dataSource}
-                    columns={columns}
-                    pagination={false}/>
-            }
-          
-        </>
+        console.log(dataSource)
+        if ((selectedWatchlist !== '365074' || (selectedWatchlist === '365074' && selectedIndustry))) {
+            
+            return <>
+                {
+                    <BarChart width={1200} height={250} data={dataBarChart} onClick={this.handleSelectIndustry}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="icbCode" style={{ fontSize: "8px"}}/>
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="count" fill="#8884d8" barSize={16} />
+                    </BarChart>
+                }
+            
+                {
+                    (selectedWatchlist !== '365074' || (selectedWatchlist === '365074' && selectedIndustry)) &&
+                    <Table 
+                        className="StockDashboard-table"
+                        dataSource={dataSource}
+                        columns={columns}
+                        pagination={false}/>
+                }
+            </>
+        } else {
+            return <>
+            <div>
+                {`Loc 10 ty/phien`}
+                <Button onClick={this.handleFilter}>Loc</Button>
+                
+            </div>
+            <Table 
+                className="StockDashboard-table"
+                dataSource={dataSource}
+                columns={columns_2}
+                pagination={false}/>
+            </>
+        }
           
     }
 
@@ -522,23 +632,23 @@ class StockDashboard extends React.Component<IProps, IState> {
             const listWatchlistsObj = keyBy(listWatchlists, "watchlistID")
             const listSymbols = listWatchlistsObj[Number(data.key)].symbols
             const newList = listSymbols.map((i: any) => {
-                return {
-                    symbol: i
-                }
+                return { symbol: i}
             })
             this.setState({
                 listStock: newList,
                 selectedWatchlist: data.key
             }, () => {
-                this.getFinancialIndicatorsAll(listSymbols)
-                this.getFinancialReportsAll(listSymbols)
-                this.getNewsAll(listSymbols)
-                this.getCommunityAll(listSymbols)
-                this.getProfileAll(listSymbols)
-                this.getFundamentalAll(listSymbols)
-
+                if (data.key !== '365074') {
+                    this.getFinancialIndicatorsAll(listSymbols)
+                    this.getFinancialReportsAll(listSymbols)
+                    this.getNewsAll(listSymbols)
+                    this.getCommunityAll(listSymbols)
+                    this.getProfileAll(listSymbols)
+                    this.getFundamentalAll(listSymbols)
+                } else {
+                    this.getPriceStockAll(listSymbols)
+                }
             })
-        
     }
 
     render() {
@@ -559,6 +669,7 @@ class StockDashboard extends React.Component<IProps, IState> {
                 <div>{selectedWatchlist ? watchlistObj[selectedWatchlist].name : 'Watchlist'}</div>
             </Dropdown>
             </div>
+           
             {this.renderListStock()}
             {modal === "news" && <News close={() => this.setState({ modal: "" })} url={newsUrl} />}
         </div>

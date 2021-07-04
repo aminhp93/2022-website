@@ -74,6 +74,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
         if (!symbol) return;
         let startCount = -1;
         let endCount = 0;
+        
         if (moment().format('ddd') === "Sat") {
             startCount = -2
             endCount = -1
@@ -81,8 +82,23 @@ class StockWatchlist extends React.Component<IProps, IState> {
             startCount = -3
             endCount = -2
         } else if (moment().format("ddd") === "Mon") {
-            startCount = -3
-            endCount = 0
+            if (moment().format('HH') < '09' && moment().format('HH') > '00' ) {
+                startCount = -4
+                endCount = -3
+            } else {
+                startCount = -3
+                endCount = 0
+            }
+        } else if (moment().format("ddd") === "Tue") {
+            if (moment().format('HH') < '09' && moment().format('HH') > '00' ) {
+                startCount = -4
+                endCount = -1
+            } 
+        } else {
+            if (moment().format('HH') < '09' && moment().format('HH') > '00' ) {
+                startCount = -2
+                endCount = -1
+            } 
         }
         // startCount = -5
         // endCount = 0
@@ -97,7 +113,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
             url: `https://restv2.fireant.vn/symbols/${symbol}/historical-quotes?startDate=${startDate}&endDate=${endDate}&offset=0&limit=20`,
         }).then((res: any) => {
             let percentChange = 0;
-            percentChange = Number((((res.data[0].priceClose - res.data[1].priceClose) / res.data[1].priceClose)*100).toFixed(2))
+            percentChange = Number(((((res.data[0] || {}).priceClose - (res.data[1] || {}).priceClose) / (res.data[1] || {}).priceClose)*100).toFixed(2))
             return { symbol, percentChange }
         }).catch((e: any) => {
             console.log(e)
@@ -121,7 +137,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
     renderMarketAnalysis = () => {
         const { listData } = this.state;
         const thanh_khoan_lon_t6 = (listData.filter((i: any) => i.name === "thanh_khoan_lon_t6") || [])[0]
-        if (!thanh_khoan_lon_t6) return
+        if (!thanh_khoan_lon_t6 || !thanh_khoan_lon_t6.value) return
         const increase = thanh_khoan_lon_t6.value.filter((i: any) => i.percentChange > 0).length;
         const total = thanh_khoan_lon_t6.value.length;
         const greater_0 = thanh_khoan_lon_t6.value.filter((i: any) => i.percentChange > 0 && i.percentChange < 1).length;
@@ -208,7 +224,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
 
     render() {
         const { listData, showAll } = this.state;
-          
+        console.log(listData)
         const columns = [
             {
               title: 'symbol',
@@ -247,6 +263,18 @@ class StockWatchlist extends React.Component<IProps, IState> {
             },
         ];
 
+        const columns3 = [
+            {
+                title: 'NH',
+                render: (data: any) => {
+                    console.log(data)
+                    
+                    return <div>{data.name}</div>
+                    
+                }
+            }
+        ]
+
         const sortList1 = [ 'vn30', 'aim_to_buy', 'watching', 'da_mua']
         const sortList2 = [ '2357_xay_dung_xay_lap', '8633_dau_co_va_BDS', '8781_chung_khoan', '8355_ngan_hang']
         
@@ -270,9 +298,7 @@ class StockWatchlist extends React.Component<IProps, IState> {
                     {this.renderMarketAnalysis()}
                 </div>
              
-                <div style={{ height: "50%" }} className="flex">
-                    
-
+                <div style={{ height: "50%" }} className="flex">                    
                     {
                         listData
                             .filter((i: any) => !['da_mua', 'watching', 'aim_to_buy', 'vn30', 'thanh_khoan_lon_t6'].includes(i.name) && i.value && i.value.length > 0)
